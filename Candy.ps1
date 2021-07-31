@@ -1,16 +1,47 @@
 #Requires -Version 7.1.3
 [CmdletBinding()]
 param(
+    [Alias(
+        "System"
+    )]
+    [ValidateSet(
+        "Execute",
+        "Version",
+        "Github"
+    )]
+    [string]
+    $CandySystem = "Chancla",
+    [Alias(
+        "Output",
+        "Return"
+    )]
+    [ValidateSet(
+        "JSON",
+        "PSCustomObject",
+        "Hashtable",
+        "Null"
+    )]
+    [string]
+    $Type = "Null",
     [switch]
     $NoColor,
+    [switch]
+    $NoExit,
     [Alias(
         "Quiet",
-        "Hide"
+        "Hide",
+        "Mute"
     )]
     [switch]
     $Silent
 );
 $ErrorActionPreference = "stop";
+$Invocation = $MyInvocation;
+$Major = 0;
+$Minor =0;
+$Build = 1;
+$GithubRepository = "https://github.com/RobertoRojas/CandyWrappers";
+$ExitCode = -1;
 function Write-Line {
     [CmdletBinding()]
     param(
@@ -110,9 +141,6 @@ function Write-Line {
             "Output",
             "Error"
         )]
-        [Alias(
-            "Mode"
-        )]
         $Stream = "Output"
     );
     if($Silent) {
@@ -195,7 +223,7 @@ function Write-Message {
     param(
         [ValidateNotNullOrEmpty()]
         [string]
-        $Message = "",
+        $Message = " ",
         [ValidateSet(
             "Black",
             "DarkBlue",
@@ -240,9 +268,6 @@ function Write-Message {
             "Output",
             "Error"
         )]
-        [Alias(
-            "Mode"
-        )]
         $Stream = "Output",
         [switch]
         $NoNewLine
@@ -278,5 +303,68 @@ function Write-Message {
         } else {
             [System.Console]::Error.WriteLine($Message);
         }
+        if(-not $NoColor) {
+            [System.Console]::ResetColor();
+        }
     }
+}
+function Write-ErrorMessage {
+    [CmdletBinding()]
+    param(
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory.")
+    );
+    Write-Message -Message $Message -Stream Error -ForegroundColor Red -BackgroundColor Black;
+}
+function Format-Output {
+    [CmdletBinding()]
+    param(
+        [hashtable]
+        $Output,
+        [ValidateSet(
+            "JSON",
+            "PSCustomObject",
+            "Hashtable",
+            "Null"
+        )]
+        [string]
+        $Type = "PSCustomObject"
+    );
+    if($Type -eq "PSCustomObject") {
+        Write-Output -InputObject $([pscustomobject]$Output);
+    } elseif($Type -eq "JSON") {
+        Write-Output -InputObject $(ConvertTo-Json -Depth 10 -InputObject $Output);
+    } elseif($Type -eq "Hashtable") {
+        Write-Output -InputObject $Output;
+    }
+}
+$Output = @{};
+if($CandySystem -eq "Execute") {
+    Write-Message -Message "Execute!";
+} elseif($CandySystem -eq "Version") {
+    $ExitCode = 0;
+    Write-Line -Message "Version" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+    Write-Message;
+    Write-Line -Message "$Major.$Minor.$Build" -Line " " -Corner " ";
+    Write-Message;
+    Write-Line -LineForegroundColor DarkCyan;
+    $Output.Add("Major",$Major);
+    $Output.Add("Minor",$Minor);
+    $Output.Add("Build",$Build);
+} elseif($CandySystem -eq "Github") {
+    $ExitCode = 0;
+    Write-Line -Message "Github" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+    Write-Message;
+    Write-Line -Message $GithubRepository -Line " " -Corner " ";
+    Write-Message;
+    Write-Line -LineForegroundColor DarkCyan;
+    $Output.Add("GithubRepository",$GithubRepository);
+} else {
+    Write-ErrorMessage -Message "The CandySystem[$($CandySystem)] is not implemented.";
+}
+$Output.Add("ExitCode", $ExitCode); 
+Write-Output -InputObject $(Format-Output -Type $Type -Output $Output);
+if(-not $NoExit) {
+    exit $ExitCode;
 }
