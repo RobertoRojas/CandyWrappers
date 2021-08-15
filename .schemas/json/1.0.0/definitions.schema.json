@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Definitions schema",
+    "description": "Definitions to use in other schemas.",
+    "definitions": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_\\-\\/\\\\]+$"
+        },
+        "description": {
+            "type": "string"
+        },
+        "ignore": {
+            "type": "boolean"
+        }
+    }
+}

@@ -1,0 +1,84 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "CandyWrappers schema",
+    "description": "Define the generic functions of CandyWrappers.",
+    "definitions": {
+        "cw_echo": {
+            "type": "object",
+            "required": [
+                "id",
+                "wrapper",
+                "message"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "wrapper": {
+                    "type": "string",
+                    "pattern": "^cw_echo$"
+                },
+                "message": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
+        },
+        "cw_pause": {
+            "type": "object",
+            "required": [
+                "id",
+                "wrapper",
+                "seconds"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "wrapper": {
+                    "type": "string",
+                    "pattern": "^cw_pause$"
+                },
+                "seconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
+        },
+        "cw_break": {
+            "type": "object",
+            "required": [
+                "id",
+                "wrapper"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "wrapper": {
+                    "type": "string",
+                    "pattern": "^cw_break$"
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
+        }
+    }
+}
