@@ -7,6 +7,31 @@
             "type": "string",
             "pattern": "^[a-zA-Z0-9_\\-\\/\\\\]+$"
         },
+        "nonemptystring": {
+            "type": "string",
+            "minLength": 1
+        },
+        "color": {
+            "type": "string",
+            "enum": [
+                "black",
+                "darkBlue",
+                "darkGreen",
+                "darkCyan",
+                "darkRed",
+                "darkMagenta",
+                "darkYellow",
+                "gray",
+                "darkGray",
+                "blue",
+                "green",
+                "cyan",
+                "red",
+                "magenta",
+                "yellow",
+                "white"
+            ]
+        },
         "description": {
             "type": "string"
         },

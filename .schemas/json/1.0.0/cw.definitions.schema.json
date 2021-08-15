@@ -7,20 +7,36 @@
             "type": "object",
             "required": [
                 "id",
-                "wrapper",
+                "task",
                 "message"
             ],
             "properties": {
                 "id": {
                     "$ref": "definitions.schema.json#/definitions/id"
                 },
-                "wrapper": {
+                "task": {
                     "type": "string",
                     "pattern": "^cw_echo$"
                 },
                 "message": {
+                    "$ref": "definitions.schema.json#/definitions/nonemptystring"
+                },
+                "foregroundcolor": {
+                    "$ref": "definitions.schema.json#/definitions/color"
+                },
+                "backgroundcolor": {
+                    "$ref": "definitions.schema.json#/definitions/color"
+                },
+                "stream": {
                     "type": "string",
-                    "minLength": 1
+                    "enum": [
+                        "output",
+                        "error"
+                    ]
+                },
+                "nonewscope": {
+                    "type": "boolean",
+                    "enum": [false]
                 },
                 "description": {
                     "$ref": "definitions.schema.json#/definitions/description"
@@ -34,21 +50,25 @@
             "type": "object",
             "required": [
                 "id",
-                "wrapper",
-                "seconds"
+                "task",
+                "milliseconds"
             ],
             "properties": {
                 "id": {
                     "$ref": "definitions.schema.json#/definitions/id"
                 },
-                "wrapper": {
+                "task": {
                     "type": "string",
                     "pattern": "^cw_pause$"
                 },
-                "seconds": {
+                "milliseconds": {
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 2147483647
+                },
+                "nonewscope": {
+                    "type": "boolean",
+                    "enum": [false]
                 },
                 "description": {
                     "$ref": "definitions.schema.json#/definitions/description"
@@ -62,15 +82,22 @@
             "type": "object",
             "required": [
                 "id",
-                "wrapper"
+                "task"
             ],
             "properties": {
                 "id": {
                     "$ref": "definitions.schema.json#/definitions/id"
                 },
-                "wrapper": {
+                "task": {
                     "type": "string",
                     "pattern": "^cw_break$"
+                },
+                "break": {
+                    "type": "boolean"
+                },
+                "nonewscope": {
+                    "type": "boolean",
+                    "enum": [true]
                 },
                 "description": {
                     "$ref": "definitions.schema.json#/definitions/description"

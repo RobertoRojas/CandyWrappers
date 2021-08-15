@@ -57,13 +57,16 @@ param(
         "Mute"
     )]
     [switch]
-    $Silent
+    $Silent,
+    [switch]
+    $NoInteractive,
+    [switch]
+    $NoBreak
 );
 $ErrorActionPreference = "stop";
 $Invocation = $MyInvocation;
 $CandyVersion = "1.0.0";
 $GithubRepository = "https://github.com/RobertoRojas/CandyWrappers";
-$ExitCode = -1;
 function Write-Line {
     [CmdletBinding()]
     param(
@@ -299,7 +302,7 @@ function Write-Message {
     } 
     $Parameters = @{
         Object = $Message;
-        NoNewLine = $NoNewLine;
+        NoNewLine = $true;
     };
     if(-not $NoColor) {
         if($ForegroundColor) {
@@ -320,14 +323,13 @@ function Write-Message {
                 [System.Console]::BackgroundColor = $BackgroundColor;
             }
         }
-        if($NoNewLine) {
-            [System.Console]::Error.Write($Message);
-        } else {
-            [System.Console]::Error.WriteLine($Message);
-        }
+        [System.Console]::Error.Write($Message);
         if(-not $NoColor) {
             [System.Console]::ResetColor();
         }
+    }
+    if($NoNewLine -eq $false) {
+        Write-Host;
     }
 }
 function Write-ErrorMessage {
@@ -337,7 +339,7 @@ function Write-ErrorMessage {
         [string]
         $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory.")
     );
-    Write-Message -Message $Message -Stream Error -ForegroundColor Red;
+    Write-Message -Message $Message -Stream Error -ForegroundColor Red -BackgroundColor Black;
 }
 function Write-VerboseMessage {
     [CmdletBinding()]
@@ -385,14 +387,18 @@ function Format-Output {
         Write-Output -InputObject $Output;
     }
 }
+$ExitCode = -1;
 $Output = @{};
 if($CandySystem -eq "Execute") {
     $SelectedVersion = "$Major.$Minor.$Build";
     $Configuration = @{
         Wrapper = @{
-            Execution = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath "wrappers","wrapper.json";
-            Program = Join-Path -Path $PSScriptRoot -ChildPath ".candy" -AdditionalChildPath "wrappers","wrapper.json";
-            Schema = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath "json",$SelectedVersion,"wrapper.schema.json";
+            Execution = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
+            Program = Join-Path -Path $PSScriptRoot -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
+            Schema = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("json",$SelectedVersion,"wrapper.schema.json");
+        };
+        Tasks = @{
+            Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("tasks",$SelectedVersion,"Tasks.ps1");
         };
     }
     if($null -eq $Wrappers) {
@@ -482,11 +488,11 @@ if($CandySystem -eq "Execute") {
                 }
                 if($IncludeTask) {
                     Write-Line -Message $_['id'] -MessageForegroundColor Magenta -Corner " " -Line " ";
-                    [void]$tasks.Add($_);
+                    [void]$Tasks.Add($_);
                 }
             }
         }
-        if($i -eq $Wrappers.Count -and $tasks.Count -eq 0) {
+        if($i -eq $Wrappers.Count -and $Tasks.Count -eq 0) {
             Write-ErrorMessage -Message "Nothing to execute";
         }
         Write-Message;
@@ -494,7 +500,39 @@ if($CandySystem -eq "Execute") {
             Write-Line -LineForegroundColor DarkCyan;
             $ExitCode = 1;
         }  else {
-            Write-Line -Message "To do" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+            Write-Line -Message "Execution" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+            $TasksImplementation =  . $Configuration['Tasks']['Script'];
+            for ($i = 0; $i -lt $Tasks.Count; $i++) {
+                $Break = $false;
+                $Task = $Tasks[$i];
+                $TaskExecution = $TasksImplementation[$Task['task']];
+                $NoNewScope = $Task['nonewscope'] ?? $false -or @("cw_break") -contains $Task['task'];
+                Write-Message;
+                Write-Line -Message "$($Task['id'])[$($Task['task'])]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
+                Write-Message;
+                Write-VerboseMessage -Message "index: $i";
+                Write-VerboseMessage -Message "NoNewScope: $NoNewScope";
+                if($null -eq $TaskExecution) {
+                    $ExitCode = 1;
+                    Write-ErrorMessage -Message "The task[$($Task['task'])] doesn't exist in the selected version[$SelectedVersion]";
+                    break;
+                }
+                $Response = Invoke-Command -NoNewScope:$NoNewScope -ScriptBlock $TaskExecution -ArgumentList $Task;
+                $ExitCode = 0;
+                if($Break) {
+                    break;
+                } 
+            }
+            Write-Message;
+            Write-Line -Message "Result" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+            Write-Message;
+            if($ExitCode -eq 0) {
+                Write-Line -Message "Success" -Line " " -Corner " " -MessageForegroundColor Green;
+            } else {
+                Write-Line -Message "Failure" -Line " " -Corner " " -MessageForegroundColor Red;
+            }
+            Write-Message;
+            Write-Line -LineForegroundColor DarkCyan;
         }
     }
 } elseif($CandySystem -eq "Version") {
