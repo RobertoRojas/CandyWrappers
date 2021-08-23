@@ -10,7 +10,9 @@ Write-Output -InputObject @{
         $Parameters['stream'] = $Parameters['stream'] ?? "error";
         Write-Message -Message $Parameters['message'] -ForegroundColor $Parameters['foregroundcolor'] -BackgroundColor $Parameters['backgroundcolor'] `
             -Stream $Parameters['stream'];
-        Write-Output -InputObject @{};
+        Write-Output -InputObject @{
+            Success = $true;
+        };
     };
     "cw_pause" = {
         [CmdletBinding()]
@@ -38,7 +40,9 @@ Write-Output -InputObject @{
                 $Elapsed--;
             } while ($Elapsed -gt 0);
         }
-        Write-Output -InputObject @{};
+        Write-Output -InputObject @{
+            Success = $true;
+        };
     };
     "cw_break" = {
         [CmdletBinding()]
@@ -53,5 +57,9 @@ Write-Output -InputObject @{
             Write-Line -Message "Skip break" -Line " " -Corner " " -MessageForegroundColor Black -MessageBackgroundColor DarkGray `
                 -LineBackgroundColor DarkGray;
         }
+        Write-Output -InputObject @{
+            Break = $Break;
+            Success = $true;
+        };
     };
 };

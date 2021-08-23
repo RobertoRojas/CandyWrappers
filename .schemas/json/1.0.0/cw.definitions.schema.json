@@ -38,6 +38,9 @@
                     "type": "boolean",
                     "enum": [false]
                 },
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
+                },
                 "description": {
                     "$ref": "definitions.schema.json#/definitions/description"
                 },
@@ -70,6 +73,9 @@
                     "type": "boolean",
                     "enum": [false]
                 },
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
+                },
                 "description": {
                     "$ref": "definitions.schema.json#/definitions/description"
                 },
@@ -97,7 +103,10 @@
                 },
                 "nonewscope": {
                     "type": "boolean",
-                    "enum": [true]
+                    "enum": [false]
+                },
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
                 },
                 "description": {
                     "$ref": "definitions.schema.json#/definitions/description"

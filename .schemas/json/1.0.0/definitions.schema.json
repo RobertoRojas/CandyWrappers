@@ -32,6 +32,28 @@
                 "white"
             ]
         },
+        "dependof": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "#/definitions/id"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "onerror": {
+            "type": "string",
+            "enum": [
+                "break",
+                "ignore",
+                "silent_ignore"
+            ]
+        },
         "description": {
             "type": "string"
         },

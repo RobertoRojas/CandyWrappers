@@ -38,6 +38,13 @@ param(
     )]
     [string]
     $Type = "Null",
+    [ValidateSet(
+        "break",
+        "ignore",
+        "silent_ignore"
+    )]
+    [string]
+    $OnError = "break",
     [ValidateRange(0, [int]::MaxValue)]
     [int]
     $Major = 1,
@@ -166,9 +173,11 @@ function Write-Line {
             "Output",
             "Error"
         )]
-        $Stream = "Output"
+        $Stream = "Output",
+        [switch]
+        $NoDisplay
     );
-    if($Silent) {
+    if($Silent -or $NoDisplay) {
         return;
     }
     if($Width -eq -1) {
@@ -186,10 +195,10 @@ function Write-Line {
         }
         if(-not $NoColor) {
             if($MessageForegroundColor) {
-                $Parameters.Add("ForegroundColor", $MessageForegroundColor);
+                $Parameters["ForegroundColor"]  = $MessageForegroundColor;
             }
             if($MessageBackgroundColor) {
-                $Parameters.Add("BackgroundColor", $MessageBackgroundColor);
+                $Parameters["BackgroundColor"] = $MessageBackgroundColor;
             }
         }
         Write-Message @Parameters;
@@ -211,18 +220,18 @@ function Write-Line {
         };
         if(-not $NoColor) { 
             if($LineForegroundColor) {
-                $CornerParameter.Add("ForegroundColor", $LineForegroundColor);
-                $LineParameter.Add("ForegroundColor", $LineForegroundColor);
+                $CornerParameter["ForegroundColor"] = $LineForegroundColor;
+                $LineParameter["ForegroundColor"] = $LineForegroundColor;
             }
             if($LineBackgroundColor) {
-                $CornerParameter.Add("BackgroundColor", $LineBackgroundColor);
-                $LineParameter.Add("BackgroundColor", $LineBackgroundColor);
+                $CornerParameter["BackgroundColor"] = $LineBackgroundColor;
+                $LineParameter["BackgroundColor"] = $LineBackgroundColor;
             }
             if($MessageForegroundColor) {
-                $MessageParameter.Add("ForegroundColor", $MessageForegroundColor);
+                $MessageParameter["ForegroundColor"] = $MessageForegroundColor;
             }
             if($MessageBackgroundColor) {
-                $MessageParameter.Add("BackgroundColor", $MessageBackgroundColor);
+                $MessageParameter["BackgroundColor"] = $MessageBackgroundColor;
             }
         }
         $Width -= 2;
@@ -295,21 +304,23 @@ function Write-Message {
         )]
         $Stream = "Output",
         [switch]
-        $NoNewLine
+        $NoNewLine,
+        [switch]
+        $NoDisplay
     );
-    if($Silent) {
+    if($Silent -or $NoDisplay) {
         return;
-    } 
+    }
     $Parameters = @{
         Object = $Message;
         NoNewLine = $true;
     };
     if(-not $NoColor) {
         if($ForegroundColor) {
-            $Parameters.Add("ForegroundColor", $ForegroundColor);
+            $Parameters["ForegroundColor"] = $ForegroundColor;
         }
         if($BackgroundColor) {
-            $Parameters.Add("BackgroundColor", $BackgroundColor);
+            $Parameters["BackgroundColor"] = $BackgroundColor;
         }
     }
     if($Stream -eq "Output") {
@@ -337,8 +348,13 @@ function Write-ErrorMessage {
     param(
         [ValidateNotNullOrEmpty()]
         [string]
-        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory.")
+        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory."),
+        [switch]
+        $NoDisplay
     );
+    if($Silent -or $NoDisplay) {
+        return;
+    }
     Write-Message -Message $Message -Stream Error -ForegroundColor Red -BackgroundColor Black;
 }
 function Write-VerboseMessage {
@@ -346,9 +362,11 @@ function Write-VerboseMessage {
     param(
         [ValidateNotNullOrEmpty()]
         [string]
-        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory.")
+        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory."),
+        [switch]
+        $NoDisplay
     );
-    if($Silent) {
+    if($Silent -or $NoDisplay) {
         return;
     }
     write-Verbose -Message $Message;
@@ -358,9 +376,11 @@ function Write-DebugMessage {
     param(
         [ValidateNotNullOrEmpty()]
         [string]
-        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory.")
+        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory."),
+        [switch]
+        $NoDisplay
     );
-    if($Silent) {
+    if($Silent -or $NoDisplay) {
         return;
     }
     Write-Debug -Message $Message;
@@ -424,7 +444,7 @@ if($CandySystem -eq "Execute") {
     Write-Line -Message "Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
     Write-Message;
     if(-not (Test-Path -LiteralPath $Configuration['Wrapper']['Schema'])) {
-        $ExitCode = 1;
+        $ExitCode = 2;
         Write-ErrorMessage -Message "Cannot find the schema path[$($Configuration['Wrapper']['Schema'])]";
         Write-Message;
         Write-Line -LineForegroundColor DarkCyan;
@@ -479,11 +499,12 @@ if($CandySystem -eq "Execute") {
                     }
                 }
                 foreach($IncludeID in $Task['include']) {
-                    Write-Host $IncludeID
                     if($ID -like $IncludeID) {
                         Write-VerboseMessage -Message "Include task[$ID]";
                         $IncludeTask = $true;
                         break;
+                    } else {
+                        $IncludeTask = $false;
                     }
                 }
                 if($IncludeTask) {
@@ -498,35 +519,65 @@ if($CandySystem -eq "Execute") {
         Write-Message;
         if($Tasks.Count -eq 0) {
             Write-Line -LineForegroundColor DarkCyan;
-            $ExitCode = 1;
+            $ExitCode = 2;
         }  else {
             Write-Line -Message "Execution" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
             $TasksImplementation =  . $Configuration['Tasks']['Script'];
+            $TasksExecution = @{};
+            $AllIgnored = $true;
             for ($i = 0; $i -lt $Tasks.Count; $i++) {
                 $Break = $false;
                 $Task = $Tasks[$i];
                 $TaskExecution = $TasksImplementation[$Task['task']];
+                if($Task['ignore'] -eq $true) {
+                    continue;
+                }
+                if($Task['dependof']) {
+                    $DependencyTask = $TasksExecution[$Task['dependof']['id']];
+                    $DependencyValue = $Task['dependof']['success'] ?? $true;
+                    if($null -ne $DependencyTask -and $DependencyTask -eq $DependencyValue) {
+                        Write-VerboseMessage -Message "`nThe dependency[$($Task['dependof']['id'])] of the wrapper[$($Task['id'])] is correct.";
+                    } else {
+                        Write-VerboseMessage -Message "Ignored wrapper because the dependency had a wrong value or it was not executed.";
+                        continue;
+                    }
+                }
+                $AllIgnored = $false;
                 $NoNewScope = $Task['nonewscope'] ?? $false -or @("cw_break") -contains $Task['task'];
                 Write-Message;
-                Write-Line -Message "$($Task['id'])[$($Task['task'])]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
+                Write-Line -Message "$($Task['task'])[$($Task['id'])]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
                 Write-Message;
                 Write-VerboseMessage -Message "index: $i";
                 Write-VerboseMessage -Message "NoNewScope: $NoNewScope";
                 if($null -eq $TaskExecution) {
-                    $ExitCode = 1;
+                    $ExitCode = 2;
                     Write-ErrorMessage -Message "The task[$($Task['task'])] doesn't exist in the selected version[$SelectedVersion]";
                     break;
                 }
                 $Response = Invoke-Command -NoNewScope:$NoNewScope -ScriptBlock $TaskExecution -ArgumentList $Task;
                 $ExitCode = 0;
-                if($Break) {
+                $TasksExecution[$Task['id']] = $Response['Success'];
+                if($Response['Success'] -eq $true) {
+                    $ExitCode = 0;
+                } else {
+                    $ErrorAction = $Task['onerror'] ?? $OnError;
+                    if($ErrorAction -eq "ignore" -or $ErrorAction -eq "silent_ignore"){
+                        Write-ErrorMessage -Message "`nError in the wrapper[$($Task['task'])] was ignored." -NoDisplay:$($ErrorAction -eq "silent_ignore");
+                    } else {
+                        $ExitCode = 2;
+                        $Response['Break'] = $true;
+                    }
+                }
+                if($Response['Break'] -eq $true) {
                     break;
-                } 
+                }
             }
             Write-Message;
             Write-Line -Message "Result" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
             Write-Message;
-            if($ExitCode -eq 0) {
+            if($AllIgnored) {
+                Write-Line -Message "Nothing executed" -Line " " -Corner " " -MessageForegroundColor Gray;
+            } elseif($ExitCode -eq 0) {
                 Write-Line -Message "Success" -Line " " -Corner " " -MessageForegroundColor Green;
             } else {
                 Write-Line -Message "Failure" -Line " " -Corner " " -MessageForegroundColor Red;
@@ -542,7 +593,7 @@ if($CandySystem -eq "Execute") {
     Write-Line -Message $CandyVersion -Line " " -Corner " " -MessageForegroundColor Green;
     Write-Message;
     Write-Line -LineForegroundColor DarkCyan;
-    $Output.Add("Version",$CandyVersion);
+    $Output["Version"] = $CandyVersion;
 } elseif($CandySystem -eq "Github") {
     $ExitCode = 0;
     Write-Line -Message "Github" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
@@ -550,11 +601,11 @@ if($CandySystem -eq "Execute") {
     Write-Line -Message $GithubRepository -Line " " -Corner " " -MessageForegroundColor Green;
     Write-Message;
     Write-Line -LineForegroundColor DarkCyan;
-    $Output.Add("GithubRepository",$GithubRepository);
+    $Output["GithubRepository"] = $GithubRepository;
 } else {
     Write-ErrorMessage -Message "The CandySystem[$($CandySystem)] is not implemented.";
 }
-$Output.Add("ExitCode", $ExitCode); 
+$Output["ExitCode"] = $ExitCode; 
 Write-Output -InputObject $(Format-Output -Type $Type -Output $Output);
 if(-not $NoExit) {
     exit $ExitCode;
