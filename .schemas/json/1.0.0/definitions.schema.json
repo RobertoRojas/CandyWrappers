@@ -32,6 +32,16 @@
                 "white"
             ]
         },
+        "path": {
+            "type": "string",
+            "pattern": "^([a-zA-Z][:](\\|\/))?(([^<>:\"|?*])*)+$"
+        },
+        "nonemptyarray": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/nonemptystring"
+            }
+        },
         "dependof": {
             "type": "object",
             "required": [

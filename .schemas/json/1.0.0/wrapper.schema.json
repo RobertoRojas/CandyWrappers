@@ -20,6 +20,12 @@
                     },
                     {
                         "$ref": "cw.definitions.schema.json#/definitions/cw_break"
+                    },
+                    {
+                        "$ref": "program.definitions.schema.json#/definitions/test_program"
+                    },
+                    {
+                        "$ref": "program.definitions.schema.json#/definitions/invoke_program"
                     }
                 ]
             }

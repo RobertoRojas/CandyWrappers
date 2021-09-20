@@ -62,4 +62,53 @@ Write-Output -InputObject @{
             Success = $true;
         };
     };
+    "test_program" = {
+        [CmdletBinding()]
+        param (
+            [hashtable]
+            $Parameters = $(throw "Parameters need to be defined.")
+        );
+        $Program = $Parameters['program'];
+        Write-VerboseMessage -Message "Program: $Program";
+        $Result = Test-Program -Program $Program;
+        if($Result) {
+            Write-Line -Message "Found" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Green -LineBackgroundColor Green;
+        } else {
+            Write-Line -Message "Not found" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Red -LineBackgroundColor Red;
+        }
+        Write-Output -InputObject @{
+            Result = $Result;
+            Success = $Result;
+        }
+    };
+    "invoke_program" = {
+        [CmdletBinding()]
+        param (
+            [hashtable]
+            $Parameters = $(throw "Parameters need to be defined.")
+        );
+        $Program = $Parameters['program'];
+        $Arguments = $Parameters['arguments'] ?? @();
+        $Inputs = $Parameters['inputs'] ?? @();
+        $WorkingDirectory = $Parameters['workingdirectory'] ?? $(Get-Location).Path;
+        try {
+            $Result = Invoke-Program -Program $Program -Arguments $Arguments -Inputs $Inputs -WorkingDirectory $WorkingDirectory;
+            $InputObject = @{
+                Output = $Result['Output'];
+                Error = $Result['Error'];
+                ExitCode = $Result['ExitCode'];
+                Success = $($Result['ExitCode'] -eq 0);
+            };
+        } catch {
+            Write-ErrorMessage -Message $_.Exception.Message;
+            $InputObject = @{
+                Output = "";
+                Error = "";
+                ExitCode = -1;
+                Success = $false;
+            };
+        } finally {
+            Write-Output -InputObject $InputObject;
+        }
+    };
 };

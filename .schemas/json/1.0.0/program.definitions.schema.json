@@ -1,0 +1,74 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Program module schema",
+    "description": "Define the functions of the program module.",
+    "definitions": {
+        "test_program": {
+            "type": "object",
+            "required": [
+                "id",
+                "task",
+                "program"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "task": {
+                    "type": "string",
+                    "pattern": "^test_program$"
+                },
+                "program": {
+                    "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
+        },
+        "invoke_program": {
+            "type": "object",
+            "required": [
+                "id",
+                "task",
+                "program"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "task": {
+                    "type": "string",
+                    "pattern": "^invoke_program$"
+                },
+                "program": {
+                    "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "arguments": {
+                    "$ref": "definitions.schema.json#/definitions/nonemptyarray"
+                },
+                "inputs": {
+                    "$ref": "definitions.schema.json#/definitions/nonemptyarray"
+                },
+                "workingdirectory": {
+                    "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
+        }
+    }
+}

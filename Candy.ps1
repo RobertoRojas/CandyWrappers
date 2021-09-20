@@ -420,43 +420,59 @@ if($CandySystem -eq "Execute") {
         Tasks = @{
             Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("tasks",$SelectedVersion,"Tasks.ps1");
         };
-    }
-    if($null -eq $Wrappers) {
-        if(Test-Path -LiteralPath $Configuration['Wrapper']['Execution']) {
-            $Wrappers = @($Configuration['Wrapper']['Execution']);
-        } elseif (Test-Path -LiteralPath $Configuration['Wrapper']['Program']) {
-            $Wrappers = @($Configuration['Wrapper']['Program']);
-        } else {
-            throw "$($MyInvocation.Command) : Cannot find any wrapper to execute.";
+        Modules = @{
+            Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("modules",$SelectedVersion,"Modules.ps1");
         }
     }
-    Write-Line -Message "Candy Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
-    Write-Message;
-    Write-Message -Message "Candy     : " -NoNewLine -ForegroundColor DarkCyan;
-    Write-Message -Message $CandyVersion -ForegroundColor Cyan;
-    Write-Message -Message "Wrapper   : " -NoNewLine -ForegroundColor DarkCyan;
-    Write-Message -Message $SelectedVersion -ForegroundColor Cyan;
-    Write-Message -Message "Execution : " -NoNewLine -ForegroundColor DarkCyan;
-    Write-Message -Message $(Get-Location).Path -ForegroundColor Cyan;
-    Write-Message -Message "Script    : " -NoNewLine -ForegroundColor DarkCyan;
-    Write-Message -Message $PSScriptRoot -ForegroundColor Cyan;
-    Write-Message;
-    Write-Line -Message "Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
-    Write-Message;
-    if(-not (Test-Path -LiteralPath $Configuration['Wrapper']['Schema'])) {
-        $ExitCode = 2;
-        Write-ErrorMessage -Message "Cannot find the schema path[$($Configuration['Wrapper']['Schema'])]";
+    try {
+        Write-Line -Message "Candy Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
         Write-Message;
-        Write-Line -LineForegroundColor DarkCyan;
-    } else {
+        if($null -eq $Wrappers) {
+            if(Test-Path -LiteralPath $Configuration['Wrapper']['Execution']) {
+                $Wrappers = @($Configuration['Wrapper']['Execution']);
+            } elseif (Test-Path -LiteralPath $Configuration['Wrapper']['Program']) {
+                $Wrappers = @($Configuration['Wrapper']['Program']);
+            } else {
+                throw "$($Invocation.MyCommand.Name) : Cannot find any wrapper to execute.";
+            }
+        }
+        Write-Message -Message "Candy     : " -NoNewLine -ForegroundColor DarkCyan;
+        Write-Message -Message $CandyVersion -ForegroundColor Cyan;
+        Write-Message -Message "Wrapper   : " -NoNewLine -ForegroundColor DarkCyan;
+        Write-Message -Message $SelectedVersion -ForegroundColor Cyan;
+        Write-Message -Message "Execution : " -NoNewLine -ForegroundColor DarkCyan;
+        Write-Message -Message $(Get-Location).Path -ForegroundColor Cyan;
+        Write-Message -Message "Script    : " -NoNewLine -ForegroundColor DarkCyan;
+        Write-Message -Message $PSScriptRoot -ForegroundColor Cyan;
+        Write-Message;
+        Write-Line -Message "Import modules" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+        Write-Message;
+        if(-not (Test-Path -LiteralPath $Configuration['Modules']['Script'])) {
+            throw "$($Invocation.MyCommand.Name) : Cannot find the modules[$($Configuration['Modules']['Script'])] file to import the modules list.";
+        }
+        $ModulesList = [System.Collections.ArrayList]::new();
+        foreach($Module in $(. $Configuration['Modules']['Script'])) {
+            $ModuleVersion = $(Import-PowerShellDataFile -Path $Module).ModuleVersion;
+            $ModuleName = $(Import-Module -Force -Name $Module -PassThru).Name;
+            Write-Line -Message "$ModuleName($ModuleVersion)" -MessageForegroundColor Magenta -Corner " " -Line " ";
+            [void]$ModulesList.Add(@{
+                Name = $ModuleName;
+                Path = $Module;
+                Version = $ModuleVersion;
+            });
+        }
+        Write-Message;
+        Write-Line -Message "Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+        Write-Message;
+        if(-not (Test-Path -LiteralPath $Configuration['Wrapper']['Schema'])) {
+            throw "$($Invocation.MyCommand.Name) : Cannot find the schema path[$($Configuration['Wrapper']['Schema'])]";
+        }
         $Tasks = [System.Collections.ArrayList]::new();
         for ($i = 0; $i -lt $Wrappers.Count; $i++) {
             $Wrapper = $Wrappers[$i];
             if($Wrapper -is [hashtable]) {
                 if($null -eq $Wrapper['Path']) {
-                    Write-ErrorMessage -Message "The wrapper[$i] property path is mandatory";
-                    $Tasks.Clear();
-                    break;
+                    throw "$($Invocation.MyCommand.Name) : The wrapper[$i] property path is mandatory";
                 }
                 $Task = @{
                     Path = $Wrapper['Path'];
@@ -470,23 +486,17 @@ if($CandySystem -eq "Execute") {
                     Exclude = $Exclude;
                 };
             } else {
-                Write-ErrorMessage -Message "The wrapper element[$i] is not a valid type[$($Wrapper.GetType().Name)]";
-                $Tasks.Clear();
-                break;
+                throw "$($Invocation.MyCommand.Name) : The wrapper element[$i] is not a valid type[$($Wrapper.GetType().Name)]";
             }
             if(-not (Test-Path -LiteralPath $Task['Path'])) {
-                Write-ErrorMessage -Message "The wrapper path[$()] doesn't exist";
-                $Tasks.Clear();
-                break;
+                throw "$($Invocation.MyCommand.Name) : The wrapper path[$()] doesn't exist";
             }
             $WrapperJSON = Get-Content -LiteralPath $Task['Path'] | Out-String;
             try {
                 Test-Json -Json $WrapperJSON -SchemaFile $Configuration['Wrapper']['Schema'] | Out-Null;
             } catch {
-                Write-ErrorMessage -Message $_.Exception.Message;
                 Write-VerboseMessage -Message $_.ErrorDetails.Message;
-                $Tasks.Clear();
-                break;
+                throw $_.Exception.Message;
             }
             $(ConvertFrom-Json -InputObject $WrapperJSON -Depth 10 -AsHashtable)['wrappers'] | ForEach-Object -Process {
                 $ID = $_['id'];
@@ -513,78 +523,90 @@ if($CandySystem -eq "Execute") {
                 }
             }
         }
-        if($i -eq $Wrappers.Count -and $Tasks.Count -eq 0) {
-            Write-ErrorMessage -Message "Nothing to execute";
-        }
         Write-Message;
-        if($Tasks.Count -eq 0) {
-            Write-Line -LineForegroundColor DarkCyan;
-            $ExitCode = 2;
-        }  else {
-            Write-Line -Message "Execution" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
-            $TasksImplementation =  . $Configuration['Tasks']['Script'];
-            $TasksExecution = @{};
-            $AllIgnored = $true;
-            for ($i = 0; $i -lt $Tasks.Count; $i++) {
-                $Break = $false;
-                $Task = $Tasks[$i];
-                $TaskExecution = $TasksImplementation[$Task['task']];
-                if($Task['ignore'] -eq $true) {
+        Write-Line -Message "Execution" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+        if(-not (Test-Path -LiteralPath $Configuration['Tasks']['Script'])) {
+            throw "$($Invocation.MyCommand.Name) : Cannot find the task[$($Configuration['Tasks']['Script'])] file to import the wrappers.";
+        }
+        $TasksImplementation =  . $Configuration['Tasks']['Script'];
+        $TasksExecution = @{};
+        $AllIgnored = $true;
+        for ($i = 0; $i -lt $Tasks.Count; $i++) {
+            $Break = $false;
+            $Task = $Tasks[$i];
+            $TaskExecution = $TasksImplementation[$Task['task']];
+            if($Task['ignore'] -eq $true) {
+                continue;
+            }
+            if($Task['dependof']) {
+                $DependencyTask = $TasksExecution[$Task['dependof']['id']];
+                $DependencyValue = $Task['dependof']['success'] ?? $true;
+                if($null -ne $DependencyTask -and $DependencyTask -eq $DependencyValue) {
+                    Write-VerboseMessage -Message "`nThe dependency[$($Task['dependof']['id'])] of the wrapper[$($Task['id'])] is correct.";
+                } else {
+                    Write-VerboseMessage -Message "Ignored wrapper because the dependency had a wrong value or it was not executed.";
                     continue;
                 }
-                if($Task['dependof']) {
-                    $DependencyTask = $TasksExecution[$Task['dependof']['id']];
-                    $DependencyValue = $Task['dependof']['success'] ?? $true;
-                    if($null -ne $DependencyTask -and $DependencyTask -eq $DependencyValue) {
-                        Write-VerboseMessage -Message "`nThe dependency[$($Task['dependof']['id'])] of the wrapper[$($Task['id'])] is correct.";
-                    } else {
-                        Write-VerboseMessage -Message "Ignored wrapper because the dependency had a wrong value or it was not executed.";
-                        continue;
-                    }
-                }
-                $AllIgnored = $false;
-                $NoNewScope = $Task['nonewscope'] ?? $false -or @("cw_break") -contains $Task['task'];
-                Write-Message;
-                Write-Line -Message "$($Task['task'])[$($Task['id'])]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
-                Write-Message;
-                Write-VerboseMessage -Message "index: $i";
-                Write-VerboseMessage -Message "NoNewScope: $NoNewScope";
-                if($null -eq $TaskExecution) {
-                    $ExitCode = 2;
-                    Write-ErrorMessage -Message "The task[$($Task['task'])] doesn't exist in the selected version[$SelectedVersion]";
-                    break;
-                }
-                $Response = Invoke-Command -NoNewScope:$NoNewScope -ScriptBlock $TaskExecution -ArgumentList $Task;
+            }
+            $AllIgnored = $false;
+            $NoNewScope = $Task['nonewscope'] ?? $false -or @("cw_break") -contains $Task['task'];
+            Write-Message;
+            Write-Line -Message "$($Task['task'])[$($Task['id'])]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
+            Write-Message;
+            Write-VerboseMessage -Message "index: $i";
+            Write-VerboseMessage -Message "NoNewScope: $NoNewScope";
+            if($null -eq $TaskExecution) {
+                $ExitCode = 2;
+                Write-ErrorMessage -Message "The task[$($Task['task'])] doesn't exist in the selected version[$SelectedVersion]";
+                break;
+            }
+            $Response = Invoke-Command -NoNewScope:$NoNewScope -ScriptBlock $TaskExecution -ArgumentList $Task;
+            $ExitCode = 0;
+            $TasksExecution[$Task['id']] = $Response['Success'];
+            if($Response['Success'] -eq $true) {
                 $ExitCode = 0;
-                $TasksExecution[$Task['id']] = $Response['Success'];
-                if($Response['Success'] -eq $true) {
-                    $ExitCode = 0;
-                } else {
-                    $ErrorAction = $Task['onerror'] ?? $OnError;
-                    if($ErrorAction -eq "ignore" -or $ErrorAction -eq "silent_ignore"){
-                        Write-ErrorMessage -Message "`nError in the wrapper[$($Task['task'])] was ignored." -NoDisplay:$($ErrorAction -eq "silent_ignore");
-                    } else {
-                        $ExitCode = 2;
-                        $Response['Break'] = $true;
-                    }
-                }
-                if($Response['Break'] -eq $true) {
-                    break;
-                }
-            }
-            Write-Message;
-            Write-Line -Message "Result" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
-            Write-Message;
-            if($AllIgnored) {
-                Write-Line -Message "Nothing executed" -Line " " -Corner " " -MessageForegroundColor Gray;
-            } elseif($ExitCode -eq 0) {
-                Write-Line -Message "Success" -Line " " -Corner " " -MessageForegroundColor Green;
             } else {
-                Write-Line -Message "Failure" -Line " " -Corner " " -MessageForegroundColor Red;
+                $ErrorAction = $Task['onerror'] ?? $OnError;
+                if($ErrorAction -eq "ignore" -or $ErrorAction -eq "silent_ignore"){
+                    Write-ErrorMessage -Message "`nError in the wrapper[$($Task['task'])] was ignored." -NoDisplay:$($ErrorAction -eq "silent_ignore");
+                } else {
+                    $ExitCode = 2;
+                    $Response['Break'] = $true;
+                }
+            }
+            if($Response['Break'] -eq $true) {
+                break;
+            }
+        }
+        Write-Message;
+        Write-Line -Message "Result" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+        Write-Message;
+        if($AllIgnored) {
+            Write-Line -Message "Nothing executed" -Line " " -Corner " " -MessageForegroundColor Gray;
+        } elseif($ExitCode -eq 0) {
+            Write-Line -Message "Success" -Line " " -Corner " " -MessageForegroundColor Green;
+        } else {
+            Write-Line -Message "Failure" -Line " " -Corner " " -MessageForegroundColor Red;
+        }
+        Write-Message;
+    } catch {
+        Write-Message;
+        Write-ErrorMessage -Message $_.Exception.Message;
+        Write-Message;
+        $ExitCode = 2;
+    } finally {
+        if($null -ne $ModulesList) {
+            Write-Line -Message "Remove modules" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+            Write-Message;
+            foreach ($Module in $ModulesList) {
+                $ModuleName = $Module['Name'];
+                $ModuleVersion = $Module['Version'];
+                Write-Line -Message "$ModuleName($ModuleVersion)" -MessageForegroundColor Magenta -Corner " " -Line " ";
+                Remove-Module -Force -Name $Module['Name'];
             }
             Write-Message;
-            Write-Line -LineForegroundColor DarkCyan;
         }
+        Write-Line -LineForegroundColor DarkCyan;
     }
 } elseif($CandySystem -eq "Version") {
     $ExitCode = 0;
