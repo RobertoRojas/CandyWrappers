@@ -415,7 +415,7 @@ if($CandySystem -eq "Execute") {
         Wrapper = @{
             Execution = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
             Program = Join-Path -Path $PSScriptRoot -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
-            Schema = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("json",$SelectedVersion,"wrapper.schema.json");
+            Schema = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @($SelectedVersion,"wrapper.schema.json");
         };
         Tasks = @{
             Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("tasks",$SelectedVersion,"Tasks.ps1");
@@ -549,7 +549,7 @@ if($CandySystem -eq "Execute") {
                 }
             }
             $AllIgnored = $false;
-            $NoNewScope = $Task['nonewscope'] ?? $false -or @("cw_break") -contains $Task['task'];
+            $Task['nonewscope'] = $Task['nonewscope'] ?? $false -or @("cw_break") -contains $Task['task'];
             Write-Message;
             Write-Line -Message "$($Task['task'])[$($Task['id'])]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
             Write-Message;
@@ -560,7 +560,7 @@ if($CandySystem -eq "Execute") {
                 Write-ErrorMessage -Message "The task[$($Task['task'])] doesn't exist in the selected version[$SelectedVersion]";
                 break;
             }
-            $Response = Invoke-Command -NoNewScope:$NoNewScope -ScriptBlock $TaskExecution -ArgumentList $Task;
+            $Response = Invoke-Command -NoNewScope:$Task['nonewscope'] -ScriptBlock $TaskExecution -ArgumentList $Task;
             $ExitCode = 0;
             $TasksExecution[$Task['id']] = $Response['Success'];
             if($Response['Success'] -eq $true) {

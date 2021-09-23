@@ -100,7 +100,7 @@ Write-Output -InputObject @{
                 Success = $($Result['ExitCode'] -eq 0);
             };
         } catch {
-            Write-ErrorMessage -Message $_.Exception.Message;
+            Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($_.Exception.Message)";
             $InputObject = @{
                 Output = "";
                 Error = "";
@@ -109,6 +109,24 @@ Write-Output -InputObject @{
             };
         } finally {
             Write-Output -InputObject $InputObject;
+        }
+    };
+    "execute" = {
+        [CmdletBinding()]
+        param (
+            [hashtable]
+            $Parameters = $(throw "Parameters need to be defined.")
+        );
+        $ScriptBlock = [scriptblock]::Create($($Parameters['commands'] -join ";"));
+        try {
+            Invoke-Command -NoNewScope:$Parameters['nonewscope'] -ScriptBlock $ScriptBlock;
+            $Success = $true;
+        } catch {
+            Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
+            $Success = $false;
+        }
+        Write-Output -InputObject @{
+            Success = $Success;
         }
     };
 };

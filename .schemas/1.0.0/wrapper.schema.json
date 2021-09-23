@@ -26,6 +26,9 @@
                     },
                     {
                         "$ref": "program.definitions.schema.json#/definitions/invoke_program"
+                    },
+                    {
+                        "$ref": "shell.definitions.schema.json#/definitions/execute"
                     }
                 ]
             }

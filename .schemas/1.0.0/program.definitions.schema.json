@@ -21,6 +21,9 @@
                 "program": {
                     "$ref": "definitions.schema.json#/definitions/path"
                 },
+                "nonewscope": {
+                    "type": "boolean"
+                },
                 "dependof": {
                     "$ref": "definitions.schema.json#/definitions/dependof"
                 },
@@ -58,6 +61,9 @@
                 },
                 "workingdirectory": {
                     "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "nonewscope": {
+                    "type": "boolean"
                 },
                 "dependof": {
                     "$ref": "definitions.schema.json#/definitions/dependof"
