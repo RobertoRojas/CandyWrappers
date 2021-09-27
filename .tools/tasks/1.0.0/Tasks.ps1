@@ -79,7 +79,7 @@ Write-Output -InputObject @{
         Write-Output -InputObject @{
             Result = $Result;
             Success = $Result;
-        }
+        };
     };
     "invoke_program" = {
         [CmdletBinding()]
@@ -100,7 +100,7 @@ Write-Output -InputObject @{
                 Success = $($Result['ExitCode'] -eq 0);
             };
         } catch {
-            Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($_.Exception.Message)";
+            Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
             $InputObject = @{
                 Output = "";
                 Error = "";
@@ -124,9 +124,100 @@ Write-Output -InputObject @{
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
             $Success = $false;
+        } finally {
+            Write-Output -InputObject @{
+                Success = $Success;
+            };
+        }
+    };
+    "test_path" = {
+        [CmdletBinding()]
+        param (
+            [hashtable]
+            $Parameters = $(throw "Parameters need to be defined.")
+        );
+        $Parameters['exist'] = $Parameters['exist'] ?? $true;
+        $Success = $(Test-Path -LiteralPath $Parameters['path']) -eq $Parameters['exist'];
+        if($Success) {
+            Write-Line -Message "Match" -Line " " -Corner " " -MessageForegroundColor Green;
+        } else {
+            Write-Line -Message "Not match" -Line " " -Corner " " -MessageForegroundColor Red;
         }
         Write-Output -InputObject @{
             Success = $Success;
+        };
+    };
+    "remove_path" = {
+        [CmdletBinding()]
+        param (
+            [hashtable]
+            $Parameters = $(throw "Parameters need to be defined.")
+        );
+        try {
+            if(Test-Path -LiteralPath $Parameters['path']) {
+                Remove-Item -Path $Parameters['path'] -Recurse -Force;
+            }
+            $Success = $true;
+            Write-Line -Message "Path deleted" -Line " " -Corner " " -MessageForegroundColor Green;
+        } catch {
+            Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
+            $Success = $false;
+        } finally {
+            Write-Output -InputObject @{
+                Success = $Success;
+            };
+        }
+    };
+    "create_directory" = {
+        [CmdletBinding()]
+        param (
+            [hashtable]
+            $Parameters = $(throw "Parameters need to be defined.")
+        );
+        $Parameters['force'] = $Parameters['force'] ?? $false;
+        try {
+            if(Test-Path -LiteralPath $Parameters['path']) {
+                if($Parameters['force']) {
+                    Remove-Item -Path $Parameters['path'] -Recurse -Force;
+                } else {
+                    throw "The path[$($Parameters['path'])] already exist, please use 'force' to delete it.";
+                }
+            }
+            New-Item -Path $Parameters['path'] -ItemType directory;
+            $Success = $true;
+            Write-Line -Message "Directory created" -Line " " -Corner " " -MessageForegroundColor Green;
+        } catch {
+            Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
+            $Success = $false;
+        } finally {
+            Write-Output -InputObject @{
+                Success = $Success;
+            };
+        }
+    };
+    "set_file" = {
+        [CmdletBinding()]
+        param (
+            [hashtable]
+            $Parameters = $(throw "Parameters need to be defined.")
+        );
+        $Content = $Parameters['content'] ?? @();
+        $Encoding = $Parameters['encoding'] ?? "ascii";
+        $NoNewLine = $Parameters['nonewline'] ?? $false;
+        try {
+            if($(Test-Path -LiteralPath $Parameters['path']) -and $Parameters['force']) {
+                Remove-Item -Recurse -Force -LiteralPath $Parameters['path'];
+            }
+            Out-File -LiteralPath $Parameters['path'] -InputObject $Content -Encoding $Encoding -Append -NoNewline:$NoNewLine;
+            $Success = $true;
+            Write-Line -Message "Content added" -Line " " -Corner " " -MessageForegroundColor Green;
+        } catch {
+            Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
+            $Success = $false;
+        } finally {
+            Write-Output -InputObject @{
+                Success = $Success;
+            };
         }
     };
 };

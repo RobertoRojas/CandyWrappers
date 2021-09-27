@@ -495,7 +495,10 @@ if($CandySystem -eq "Execute") {
             try {
                 Test-Json -Json $WrapperJSON -SchemaFile $Configuration['Wrapper']['Schema'] | Out-Null;
             } catch {
-                Write-VerboseMessage -Message $_.ErrorDetails.Message;
+                $ErrorDetails = $_.ErrorDetails.Message;
+                if($ErrorDetails) {
+                    Write-ErrorMessage -Message "$ErrorDetails";
+                }
                 throw $_.Exception.Message;
             }
             $(ConvertFrom-Json -InputObject $WrapperJSON -Depth 10 -AsHashtable)['wrappers'] | ForEach-Object -Process {

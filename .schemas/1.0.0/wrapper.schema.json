@@ -29,6 +29,18 @@
                     },
                     {
                         "$ref": "shell.definitions.schema.json#/definitions/execute"
+                    },
+                    {
+                        "$ref": "fs.definitions.schema.json#/definitions/test_path"
+                    },
+                    {
+                        "$ref": "fs.definitions.schema.json#/definitions/remove_path"
+                    },
+                    {
+                        "$ref": "fs.definitions.schema.json#/definitions/create_directory"
+                    },
+                    {
+                        "$ref": "fs.definitions.schema.json#/definitions/set_file"
                     }
                 ]
             }

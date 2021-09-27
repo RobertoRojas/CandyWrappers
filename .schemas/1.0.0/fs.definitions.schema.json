@@ -1,14 +1,14 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "CandyWrappers schema",
-    "description": "Define the internal functions of CandyWrappers.",
+    "title": "Shell schema",
+    "description": "Define the file system functions of CandyWrappers.",
     "definitions": {
-        "cw_echo": {
+        "test_path": {
             "type": "object",
             "required": [
                 "id",
                 "task",
-                "message"
+                "path"
             ],
             "properties": {
                 "id": {
@@ -16,87 +16,138 @@
                 },
                 "task": {
                     "type": "string",
-                    "pattern": "^cw_echo$"
+                    "pattern": "^test_path$"
                 },
-                "message": {
-                    "$ref": "definitions.schema.json#/definitions/nonemptystring"
+                "path": {
+                    "$ref": "definitions.schema.json#/definitions/path"
                 },
-                "foregroundcolor": {
-                    "$ref": "definitions.schema.json#/definitions/color"
+                "exist": {
+                    "type": "boolean"
                 },
-                "backgroundcolor": {
-                    "$ref": "definitions.schema.json#/definitions/color"
+                "nonewscope": {
+                    "type": "boolean"
                 },
-                "stream": {
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
+        },
+        "remove_path": {
+            "type": "object",
+            "required": [
+                "id",
+                "task",
+                "path"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "task": {
+                    "type": "string",
+                    "pattern": "^remove_path$"
+                },
+                "path": {
+                    "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "nonewscope": {
+                    "type": "boolean"
+                },
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
+        },
+        "create_directory": {
+            "type": "object",
+            "required": [
+                "id",
+                "task",
+                "path"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "task": {
+                    "type": "string",
+                    "pattern": "^create_directory$"
+                },
+                "path": {
+                    "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "force": {
+                    "type": "boolean"
+                },
+                "nonewscope": {
+                    "type": "boolean"
+                },
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
+        },
+        "set_file": {
+            "type": "object",
+            "required": [
+                "id",
+                "task",
+                "path"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "task": {
+                    "type": "string",
+                    "pattern": "^set_file$"
+                },
+                "path": {
+                    "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "encoding": {
                     "type": "string",
                     "enum": [
-                        "output",
-                        "error"
+                        "ascii",
+                        "bigendianunicode",
+                        "bigendianutf32",
+                        "oem",
+                        "unicode",
+                        "utf7",
+                        "utf8",
+                        "utf8BOM",
+                        "utf8NoBOM",
+                        "utf3"
                     ]
                 },
-                "nonewscope": {
+                "nonewline": {
                     "type": "boolean"
                 },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
-                }
-            }
-        },
-        "cw_pause": {
-            "type": "object",
-            "required": [
-                "id",
-                "task",
-                "milliseconds"
-            ],
-            "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
-                "task": {
-                    "type": "string",
-                    "pattern": "^cw_pause$"
-                },
-                "milliseconds": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 2147483647
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
-                }
-            }
-        },
-        "cw_break": {
-            "type": "object",
-            "required": [
-                "id",
-                "task"
-            ],
-            "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
-                "task": {
-                    "type": "string",
-                    "pattern": "^cw_break$"
-                },
-                "break": {
+                "force": {
                     "type": "boolean"
                 },
                 "nonewscope": {

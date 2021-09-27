@@ -34,7 +34,13 @@
         },
         "path": {
             "type": "string",
+            "minLength": 1,
             "pattern": "^([a-zA-Z][:](\\|\/))?(([^<>:\"|?*])*)+$"
+        },
+        "pathpattern": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^([a-zA-Z][:](\\|\/))?(([^<>:\"|?])*)+$"
         },
         "nonemptyarray": {
             "type": "array",

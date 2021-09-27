@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Shell schema",
-    "description": "Define the execute wrapper to run powershell commands.",
+    "description": "Define the shell functions of CandyWrappers.",
     "definitions": {
         "execute": {
             "type": "object",
