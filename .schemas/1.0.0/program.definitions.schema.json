@@ -3,38 +3,6 @@
     "title": "Program module schema",
     "description": "Define the functions of the program module.",
     "definitions": {
-        "test_program": {
-            "type": "object",
-            "required": [
-                "id",
-                "task",
-                "program"
-            ],
-            "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
-                "task": {
-                    "type": "string",
-                    "pattern": "^test_program$"
-                },
-                "program": {
-                    "$ref": "definitions.schema.json#/definitions/path"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
-                }
-            }
-        },
         "invoke_program": {
             "type": "object",
             "required": [
@@ -60,6 +28,38 @@
                     "$ref": "definitions.schema.json#/definitions/nonemptyarray"
                 },
                 "workingdirectory": {
+                    "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "nonewscope": {
+                    "type": "boolean"
+                },
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
+        },
+        "test_program": {
+            "type": "object",
+            "required": [
+                "id",
+                "task",
+                "program"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "task": {
+                    "type": "string",
+                    "pattern": "^test_program$"
+                },
+                "program": {
                     "$ref": "definitions.schema.json#/definitions/path"
                 },
                 "nonewscope": {

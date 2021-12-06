@@ -13,34 +13,34 @@
             "items": {
                 "anyOf": [
                     {
+                        "$ref": "fs.definitions.schema.json#/definitions/create_directory"
+                    },
+                    {
+                        "$ref": "cw.definitions.schema.json#/definitions/cw_break"
+                    },
+                    {
                         "$ref": "cw.definitions.schema.json#/definitions/cw_echo"
                     },
                     {
                         "$ref": "cw.definitions.schema.json#/definitions/cw_pause"
                     },
                     {
-                        "$ref": "cw.definitions.schema.json#/definitions/cw_break"
-                    },
-                    {
-                        "$ref": "program.definitions.schema.json#/definitions/test_program"
+                        "$ref": "shell.definitions.schema.json#/definitions/execute"
                     },
                     {
                         "$ref": "program.definitions.schema.json#/definitions/invoke_program"
                     },
                     {
-                        "$ref": "shell.definitions.schema.json#/definitions/execute"
+                        "$ref": "fs.definitions.schema.json#/definitions/remove_path"
+                    },
+                    {
+                        "$ref": "fs.definitions.schema.json#/definitions/set_file"
                     },
                     {
                         "$ref": "fs.definitions.schema.json#/definitions/test_path"
                     },
                     {
-                        "$ref": "fs.definitions.schema.json#/definitions/remove_path"
-                    },
-                    {
-                        "$ref": "fs.definitions.schema.json#/definitions/create_directory"
-                    },
-                    {
-                        "$ref": "fs.definitions.schema.json#/definitions/set_file"
+                        "$ref": "program.definitions.schema.json#/definitions/test_program"
                     }
                 ]
             }

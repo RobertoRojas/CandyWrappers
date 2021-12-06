@@ -3,7 +3,7 @@
     "title": "Shell schema",
     "description": "Define the file system functions of CandyWrappers.",
     "definitions": {
-        "test_path": {
+        "create_directory": {
             "type": "object",
             "required": [
                 "id",
@@ -16,12 +16,12 @@
                 },
                 "task": {
                     "type": "string",
-                    "pattern": "^test_path$"
+                    "pattern": "^create_directory$"
                 },
                 "path": {
                     "$ref": "definitions.schema.json#/definitions/path"
                 },
-                "exist": {
+                "force": {
                     "type": "boolean"
                 },
                 "nonewscope": {
@@ -55,41 +55,6 @@
                 },
                 "path": {
                     "$ref": "definitions.schema.json#/definitions/path"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
-                }
-            }
-        },
-        "create_directory": {
-            "type": "object",
-            "required": [
-                "id",
-                "task",
-                "path"
-            ],
-            "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
-                "task": {
-                    "type": "string",
-                    "pattern": "^create_directory$"
-                },
-                "path": {
-                    "$ref": "definitions.schema.json#/definitions/path"
-                },
-                "force": {
-                    "type": "boolean"
                 },
                 "nonewscope": {
                     "type": "boolean"
@@ -148,6 +113,41 @@
                     "type": "boolean"
                 },
                 "force": {
+                    "type": "boolean"
+                },
+                "nonewscope": {
+                    "type": "boolean"
+                },
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
+        },
+        "test_path": {
+            "type": "object",
+            "required": [
+                "id",
+                "task",
+                "path"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "task": {
+                    "type": "string",
+                    "pattern": "^test_path$"
+                },
+                "path": {
+                    "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "exist": {
                     "type": "boolean"
                 },
                 "nonewscope": {
