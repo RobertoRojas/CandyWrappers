@@ -1,4 +1,4 @@
-#!/usr/bin/pwsh
+#!/usr/bin/env pwsh
 #Requires -Version 7.1.3
 [CmdletBinding()]
 param(
