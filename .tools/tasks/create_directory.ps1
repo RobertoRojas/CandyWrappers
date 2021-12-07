@@ -23,7 +23,7 @@ Write-Output -InputObject @{
                     throw "The path[$($Parameters['path'])] already exist, please use 'force' to delete it.";
                 }
             }
-            New-Item -Path $Parameters['path'] -ItemType directory;
+            New-Item -Path $Parameters['path'] -ItemType directory | Out-Null;
             $Success = $true;
             Write-Line -Message "Directory created" -Line " " -Corner " " -MessageForegroundColor Green;
         } catch {
