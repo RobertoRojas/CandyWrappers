@@ -535,7 +535,6 @@ if($CandySystem -eq "Execute") {
         $TasksExecution = @{};
         $AllIgnored = $true;
         for ($i = 0; $i -lt $Tasks.Count; $i++) {
-            $Break = $false;
             $Task = $Tasks[$i];
             $TaskExecution = $TasksImplementation[$Task['task']];
             if($Task['ignore'] -eq $true) {
@@ -552,7 +551,7 @@ if($CandySystem -eq "Execute") {
                 }
             }
             $AllIgnored = $false;
-            $Task['nonewscope'] = $Task['nonewscope'] ?? $false -or @("cw_break") -contains $Task['task'];
+            $NoNewScope = $Task['nonewscope'] ?? $false -or @("cw_break") -contains $Task['task'];
             Write-Message;
             Write-Line -Message "$($Task['task'])[$($Task['id'])]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
             Write-Message;
@@ -563,7 +562,7 @@ if($CandySystem -eq "Execute") {
                 Write-ErrorMessage -Message "The task[$($Task['task'])] doesn't exist in the selected version[$SelectedVersion]";
                 break;
             }
-            $Response = Invoke-Command -NoNewScope:$Task['nonewscope'] -ScriptBlock $TaskExecution -ArgumentList $Task;
+            $Response = Invoke-Command -NoNewScope:$NoNewScope -ScriptBlock $TaskExecution -ArgumentList $Task;
             $ExitCode = 0;
             $TasksExecution[$Task['id']] = $Response['Success'];
             if($Response['Success'] -eq $true) {
@@ -593,6 +592,12 @@ if($CandySystem -eq "Execute") {
         }
         Write-Message;
     } catch {
+        Write-Message;
+        Write-Line -Message "Result" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+        Write-Message;
+        Write-Line -Message "Candy wrappers error" -Line " " -Corner " " -MessageForegroundColor Red;
+        Write-Message;
+        Write-Line -Message "Error details" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
         Write-Message;
         Write-ErrorMessage -Message $_.Exception.Message;
         Write-Message;
