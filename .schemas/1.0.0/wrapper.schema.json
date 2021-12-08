@@ -41,6 +41,9 @@
                     },
                     {
                         "$ref": "program.definitions.schema.json#/definitions/test_program"
+                    },
+                    {
+                        "$ref": "web.definitions.schema.json#/definitions/download_file"
                     }
                 ]
             }
