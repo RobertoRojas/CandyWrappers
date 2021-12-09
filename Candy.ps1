@@ -68,7 +68,9 @@ param(
     [switch]
     $NoInteractive,
     [switch]
-    $NoBreak
+    $NoBreak,
+    [switch]
+    $JoinStreams
 );
 $ErrorActionPreference = "stop";
 $Invocation = $MyInvocation;
@@ -355,7 +357,7 @@ function Write-ErrorMessage {
     if($Silent -or $NoDisplay) {
         return;
     }
-    Write-Message -Message $Message -Stream Error -ForegroundColor Red -BackgroundColor Black;
+    Write-Message -Message $Message -Stream $(@{$false="Error";$true="Output"}[$JoinStreams -eq $true]) -ForegroundColor Red -BackgroundColor Black;
 }
 function Write-VerboseMessage {
     [CmdletBinding()]

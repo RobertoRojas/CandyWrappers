@@ -1,4 +1,5 @@
 Write-Output -InputObject @{
+    "compress" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\compress.ps1" -Version "1.0.0"));
     "create_directory" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\create_directory.ps1" -Version "1.0.0"));
     "cw_break" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\cw_break.ps1" -Version "1.0.0"));
     "cw_echo" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\cw_echo.ps1" -Version "1.0.0"));

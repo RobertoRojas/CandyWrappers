@@ -13,6 +13,9 @@
             "items": {
                 "anyOf": [
                     {
+                        "$ref": "fs.definitions.schema.json#/definitions/compress"
+                    },
+                    {
                         "$ref": "fs.definitions.schema.json#/definitions/create_directory"
                     },
                     {

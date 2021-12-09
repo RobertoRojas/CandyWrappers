@@ -163,6 +163,56 @@
                     "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
+        },
+        "compress": {
+            "type": "object",
+            "required": [
+                "id",
+                "task",
+                "paths",
+                "destination"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "task": {
+                    "type": "string",
+                    "pattern": "^compress$"
+                },
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "definitions.schema.json#/definitions/path"
+                    }
+                },
+                "destination": {
+                    "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "compression": {
+                    "type": "string",
+                    "enum": [
+                        "Optimal",
+                        "NoCompression",
+                        "Fastest"
+                    ]
+                },
+                "force": {
+                    "type": "boolean"
+                },
+                "nonewscope": {
+                    "type": "boolean"
+                },
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
         }
     }
 }
