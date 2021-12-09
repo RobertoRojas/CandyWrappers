@@ -213,6 +213,45 @@
                     "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
+        },
+        "decompress": {
+            "type": "object",
+            "required": [
+                "id",
+                "task",
+                "path",
+                "destination"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "definitions.schema.json#/definitions/id"
+                },
+                "task": {
+                    "type": "string",
+                    "pattern": "^decompress$"
+                },
+                "path": {
+                    "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "destination": {
+                    "$ref": "definitions.schema.json#/definitions/path"
+                },
+                "force": {
+                    "type": "boolean"
+                },
+                "nonewscope": {
+                    "type": "boolean"
+                },
+                "dependof": {
+                    "$ref": "definitions.schema.json#/definitions/dependof"
+                },
+                "description": {
+                    "$ref": "definitions.schema.json#/definitions/description"
+                },
+                "ignore": {
+                    "$ref": "definitions.schema.json#/definitions/ignore"
+                }
+            }
         }
     }
 }

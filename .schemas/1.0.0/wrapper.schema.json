@@ -19,6 +19,9 @@
                         "$ref": "fs.definitions.schema.json#/definitions/create_directory"
                     },
                     {
+                        "$ref": "fs.definitions.schema.json#/definitions/decompress"
+                    },
+                    {
                         "$ref": "cw.definitions.schema.json#/definitions/cw_break"
                     },
                     {
