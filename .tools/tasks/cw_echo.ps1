@@ -20,6 +20,7 @@ Write-Output -InputObject @{
         Write-Message -Message $Parameters['message'] -ForegroundColor $Parameters['foregroundcolor'] -BackgroundColor $Parameters['backgroundcolor'] `
             -Stream $Parameters['stream'];
         Write-Output -InputObject @{
+            Message = $Parameters['message'];
             Success = $true;
         };
     };

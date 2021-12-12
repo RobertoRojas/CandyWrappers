@@ -14,28 +14,27 @@ Write-Output -InputObject @{
             [hashtable]
             $Parameters = $(throw "Parameters need to be defined.")
         );
-        $URI = $Parameters['uri'];
-        $File = $Parameters['file'];
-        $Force = $Parameters['force'] ?? $false;
+        $Output = @{
+            URI = $Parameters['uri'];
+        };
         try {
-            if(Test-Path -LiteralPath $File) {
-                if($Force) {
-                    Remove-Item -LiteralPath $File;
+            if(Test-Path -LiteralPath $Parameters['file']) {
+                if($Parameters['force']) {
+                    Remove-Item -LiteralPath $Parameters['file'];
                 } else {
                     throw "The path[$($Parameters['path'])] already exist, please use 'force' to delete it.";
                 }
             }
-            Invoke-WebRequest -Uri $URI -OutFile $File;
+            $Response = Invoke-WebRequest -Uri $Parameters['uri'] -OutFile $Parameters['file'] -PassThru;
             Write-Line -Message "File downloaded successfully" -Line " " -Corner " " -MessageForegroundColor Green;
-            Write-Output -InputObject @{
-                FilePath = $(Resolve-Path -LiteralPath $File).Path;
-                Success = $true;
-            };
+            $Output['Response'] = $Response;
+            $Output['File'] = $(Resolve-Path -LiteralPath $File).Path;
+            $Output['Success'] = $true;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            Write-Output -InputObject @{
-                Success = $false;
-            };
+            $Output['Success'] = $false;
+        } finally {
+            Write-Output -InputObject $Output;
         }
     };
 }[$Version].ToString();

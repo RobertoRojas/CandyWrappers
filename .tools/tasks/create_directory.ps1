@@ -14,7 +14,7 @@ Write-Output -InputObject @{
             [hashtable]
             $Parameters = $(throw "Parameters need to be defined.")
         );
-        $Parameters['force'] = $Parameters['force'] ?? $false;
+        $Output = @{};
         try {
             if(Test-Path -LiteralPath $Parameters['path']) {
                 if($Parameters['force']) {
@@ -24,15 +24,14 @@ Write-Output -InputObject @{
                 }
             }
             New-Item -Path $Parameters['path'] -ItemType directory | Out-Null;
-            $Success = $true;
             Write-Line -Message "Directory created" -Line " " -Corner " " -MessageForegroundColor Green;
+            $Output['Path'] = $(Resolve-Path -LiteralPath $Parameters['path']).Path;
+            $Output['Success'] = $true;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Success = $false;
+            $Output['Success'] = $false;
         } finally {
-            Write-Output -InputObject @{
-                Success = $Success;
-            };
+            Write-Output -InputObject $Output;
         }
     };
 }[$Version].ToString();
