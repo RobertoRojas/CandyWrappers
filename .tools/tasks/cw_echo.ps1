@@ -17,8 +17,9 @@ Write-Output -InputObject @{
         $Parameters['foregroundcolor'] = $Parameters['foregroundcolor'] ?? "White";
         $Parameters['backgroundcolor'] = $Parameters['backgroundcolor'] ?? "Magenta";
         $Parameters['stream'] = $Parameters['stream'] ?? "error";
+        $Parameters['silent'] = $Parameters['silent'] ?? $false;
         Write-Message -Message $Parameters['message'] -ForegroundColor $Parameters['foregroundcolor'] -BackgroundColor $Parameters['backgroundcolor'] `
-            -Stream $Parameters['stream'];
+            -Stream $Parameters['stream'] -NoDisplay:$Parameters['silent'];
         Write-Output -InputObject @{
             Message = $Parameters['message'];
             Success = $true;
