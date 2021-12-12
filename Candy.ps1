@@ -418,6 +418,7 @@ if($CandySystem -eq "Execute") {
             Execution = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
             Program = Join-Path -Path $PSScriptRoot -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
             Schema = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @($SelectedVersion,"wrapper.schema.json");
+            SchemaGeneral = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @($SelectedVersion,"wrapper.general.schema.json");
         };
         Tasks = @{
             Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("tasks",$SelectedVersion,"Tasks.ps1");
@@ -466,6 +467,9 @@ if($CandySystem -eq "Execute") {
         Write-Message;
         Write-Line -Message "Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
         Write-Message;
+        if(-not (Test-Path -LiteralPath $Configuration['Wrapper']['SchemaGeneral'])) {
+            throw "$($Invocation.MyCommand.Name) : Cannot find the General schema path[$($Configuration['Wrapper']['SchemaGeneral'])]";
+        }
         if(-not (Test-Path -LiteralPath $Configuration['Wrapper']['Schema'])) {
             throw "$($Invocation.MyCommand.Name) : Cannot find the schema path[$($Configuration['Wrapper']['Schema'])]";
         }
@@ -494,6 +498,15 @@ if($CandySystem -eq "Execute") {
                 throw "$($Invocation.MyCommand.Name) : The wrapper path[$()] doesn't exist";
             }
             $WrapperJSON = Get-Content -LiteralPath $Task['Path'] | Out-String;
+            try {
+                Test-Json -Json $WrapperJSON -SchemaFile $Configuration['Wrapper']['SchemaGeneral'] | Out-Null;
+            } catch {
+                $ErrorDetails = $_.ErrorDetails.Message;
+                if($ErrorDetails) {
+                    Write-ErrorMessage -Message "$ErrorDetails";
+                }
+                throw $_.Exception.Message;
+            }
             try {
                 Test-Json -Json $WrapperJSON -SchemaFile $Configuration['Wrapper']['Schema'] | Out-Null;
             } catch {
@@ -535,6 +548,7 @@ if($CandySystem -eq "Execute") {
         }
         $TasksImplementation =  . $Configuration['Tasks']['Script'];
         $TasksExecution = @{};
+        $Buffers = @{};
         $AllIgnored = $true;
         for ($i = 0; $i -lt $Tasks.Count; $i++) {
             $Task = $Tasks[$i];
@@ -567,6 +581,9 @@ if($CandySystem -eq "Execute") {
             $Response = Invoke-Command -NoNewScope:$NoNewScope -ScriptBlock $TaskExecution -ArgumentList $Task;
             $ExitCode = 0;
             $TasksExecution[$Task['id']] = $Response['Success'];
+            if($Task['buffer']) {
+                $Buffers[$Task['id']] = $Response;
+            }
             if($Response['Success'] -eq $true) {
                 $ExitCode = 0;
             } else {

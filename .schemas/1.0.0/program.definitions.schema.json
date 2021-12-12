@@ -6,14 +6,10 @@
         "invoke_program": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "program"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^invoke_program$"
@@ -29,50 +25,22 @@
                 },
                 "workingdirectory": {
                     "$ref": "definitions.schema.json#/definitions/path"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         },
         "test_program": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "program"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^test_program$"
                 },
                 "program": {
                     "$ref": "definitions.schema.json#/definitions/path"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         }

@@ -6,14 +6,10 @@
         "create_directory": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "path"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^create_directory$"
@@ -23,64 +19,32 @@
                 },
                 "force": {
                     "type": "boolean"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         },
         "remove_path": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "path"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^remove_path$"
                 },
                 "path": {
                     "$ref": "definitions.schema.json#/definitions/path"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         },
         "set_file": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "path"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^set_file$"
@@ -114,32 +78,16 @@
                 },
                 "force": {
                     "type": "boolean"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         },
         "test_path": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "path"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^test_path$"
@@ -149,33 +97,17 @@
                 },
                 "exist": {
                     "type": "boolean"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         },
         "compress": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "paths",
                 "destination"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^compress$"
@@ -199,33 +131,17 @@
                 },
                 "force": {
                     "type": "boolean"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         },
         "decompress": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "path",
                 "destination"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^decompress$"
@@ -238,18 +154,6 @@
                 },
                 "force": {
                     "type": "boolean"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         }

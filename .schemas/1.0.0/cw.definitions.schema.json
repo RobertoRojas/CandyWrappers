@@ -6,45 +6,25 @@
         "cw_break": {
             "type": "object",
             "required": [
-                "id",
                 "task"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^cw_break$"
                 },
                 "break": {
                     "type": "boolean"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         },
         "cw_echo": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "message"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^cw_echo$"
@@ -64,32 +44,16 @@
                         "output",
                         "error"
                     ]
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         },
         "cw_pause": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "milliseconds"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^cw_pause$"
@@ -98,18 +62,6 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 2147483647
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         }

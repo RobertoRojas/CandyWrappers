@@ -6,32 +6,16 @@
         "execute": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "commands"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^execute$"
                 },
                 "commands": {
                     "$ref": "definitions.schema.json#/definitions/nonemptyarray"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         }

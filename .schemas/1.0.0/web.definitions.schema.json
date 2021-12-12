@@ -6,15 +6,11 @@
         "download_file": {
             "type": "object",
             "required": [
-                "id",
                 "task",
                 "uri",
                 "file"
             ],
             "properties": {
-                "id": {
-                    "$ref": "definitions.schema.json#/definitions/id"
-                },
                 "task": {
                     "type": "string",
                     "pattern": "^download_file$"
@@ -27,18 +23,6 @@
                 },
                 "force": {
                     "type": "boolean"
-                },
-                "nonewscope": {
-                    "type": "boolean"
-                },
-                "dependof": {
-                    "$ref": "definitions.schema.json#/definitions/dependof"
-                },
-                "description": {
-                    "$ref": "definitions.schema.json#/definitions/description"
-                },
-                "ignore": {
-                    "$ref": "definitions.schema.json#/definitions/ignore"
                 }
             }
         }
