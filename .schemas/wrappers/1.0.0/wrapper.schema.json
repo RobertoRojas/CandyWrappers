@@ -13,9 +13,6 @@
             "items": {
                 "anyOf": [
                     {
-                        "type": "object"
-                    }
-                    /*{
                         "$ref": "../compress.definitions.schema.json#/definitions/1.0.0"
                     },
                     {
@@ -29,7 +26,7 @@
                     },
                     {
                         "$ref": "../cw_echo.definitions.schema.json#/definitions/1.0.0"
-                    }/*,
+                    },
                     {
                         "$ref": "../cw_pause.definitions.schema.json#/definitions/1.0.0"
                     },
@@ -53,7 +50,7 @@
                     },
                     {
                         "$ref": "../download.definitions.schema.json#/definitions/1.0.0"
-                    }*/
+                    }
                 ]
             }
         }
