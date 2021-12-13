@@ -1,0 +1,50 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Set file schema",
+    "description": "Define the functions to set a file of CandyWrappers.",
+    "definitions": {
+        "1.0.0": {
+            "type": "object",
+            "required": [
+                "task",
+                "path"
+            ],
+            "properties": {
+                "task": {
+                    "type": "string",
+                    "pattern": "^set_file$"
+                },
+                "path": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/path"
+                },
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "encoding": {
+                    "type": "string",
+                    "enum": [
+                        "ascii",
+                        "bigendianunicode",
+                        "bigendianutf32",
+                        "oem",
+                        "unicode",
+                        "utf7",
+                        "utf8",
+                        "utf8BOM",
+                        "utf8NoBOM",
+                        "utf3"
+                    ]
+                },
+                "nonewline": {
+                    "type": "boolean"
+                },
+                "force": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

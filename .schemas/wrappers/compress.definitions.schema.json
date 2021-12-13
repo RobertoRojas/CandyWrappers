@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Compress schema",
+    "description": "Define the functions to compress files or directories of CandyWrappers.",
+    "definitions": {
+        "1.0.0": {
+            "type": "object",
+            "required": [
+                "task",
+                "paths",
+                "destination"
+            ],
+            "properties": {
+                "task": {
+                    "type": "string",
+                    "pattern": "^compress$"
+                },
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "1.0.0/definitions.schema.json#/definitions/path"
+                    }
+                },
+                "destination": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/path"
+                },
+                "compression": {
+                    "type": "string",
+                    "enum": [
+                        "Optimal",
+                        "NoCompression",
+                        "Fastest"
+                    ]
+                },
+                "force": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,60 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Echo schema",
+    "description": "Define the functions to echo messages of CandyWrappers.",
+    "definitions": {
+        "1.0.0": {
+            "type": "object",
+            "required": [
+                "task",
+                "message"
+            ],
+            "properties": {
+                "task": {
+                    "type": "string",
+                    "pattern": "^cw_echo$"
+                },
+                "message": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/nonemptystring"
+                },
+                "foregroundcolor": {
+                    "$ref": "#/definitions/color"
+                },
+                "backgroundcolor": {
+                    "$ref": "#/definitions/color"
+                },
+                "stream": {
+                    "type": "string",
+                    "enum": [
+                        "output",
+                        "error"
+                    ]
+                },
+                "silent": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "color": {
+            "type": "string",
+            "enum": [
+                "black",
+                "darkBlue",
+                "darkGreen",
+                "darkCyan",
+                "darkRed",
+                "darkMagenta",
+                "darkYellow",
+                "gray",
+                "darkGray",
+                "blue",
+                "green",
+                "cyan",
+                "red",
+                "magenta",
+                "yellow",
+                "white"
+            ]
+        }
+    }
+}

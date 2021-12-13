@@ -1,9 +1,9 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Shell schema",
-    "description": "Define the web functions of CandyWrappers.",
+    "title": "Download schema",
+    "description": "Define the functions to download of CandyWrappers.",
     "definitions": {
-        "download_file": {
+        "1.0.0": {
             "type": "object",
             "required": [
                 "task",
@@ -13,13 +13,13 @@
             "properties": {
                 "task": {
                     "type": "string",
-                    "pattern": "^download_file$"
+                    "pattern": "^download$"
                 },
                 "uri": {
-                    "$ref": "definitions.schema.json#/definitions/uri"
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/uri"
                 },
                 "file": {
-                    "$ref": "definitions.schema.json#/definitions/path"
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/path"
                 },
                 "force": {
                     "type": "boolean"

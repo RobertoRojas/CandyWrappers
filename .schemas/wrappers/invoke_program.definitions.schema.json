@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Invoke program schema",
+    "description": "Define the functions to invoke programs of CandyWrappers.",
+    "definitions": {
+        "1.0.0": {
+            "type": "object",
+            "required": [
+                "task",
+                "program"
+            ],
+            "properties": {
+                "task": {
+                    "type": "string",
+                    "pattern": "^invoke_program$"
+                },
+                "program": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/path"
+                },
+                "arguments": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/nonemptyarray"
+                },
+                "inputs": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/nonemptyarray"
+                },
+                "workingdirectory": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/path"
+                }
+            }
+        }
+    }
+}

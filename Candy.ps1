@@ -417,8 +417,8 @@ if($CandySystem -eq "Execute") {
         Wrapper = @{
             Execution = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
             Program = Join-Path -Path $PSScriptRoot -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
-            Schema = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @($SelectedVersion,"wrapper.schema.json");
-            SchemaGeneral = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @($SelectedVersion,"wrapper.general.schema.json");
+            Schema = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("wrappers",$SelectedVersion,"wrapper.schema.json");
+            SchemaGeneral = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("wrappers",$SelectedVersion,"wrapper.general.schema.json");
         };
         Tasks = @{
             Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("tasks",$SelectedVersion,"Tasks.ps1");

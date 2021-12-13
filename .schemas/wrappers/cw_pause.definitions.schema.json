@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Pause schema",
+    "description": "Define the functions to pause the execution of CandyWrappers.",
+    "definitions": {
+        "1.0.0": {
+            "type": "object",
+            "required": [
+                "task",
+                "milliseconds"
+            ],
+            "properties": {
+                "task": {
+                    "type": "string",
+                    "pattern": "^cw_pause$"
+                },
+                "milliseconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                }
+            }
+        }
+    }
+}

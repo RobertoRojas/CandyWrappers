@@ -1,21 +1,21 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Shell schema",
-    "description": "Define the shell functions of CandyWrappers.",
+    "title": "Test program schema",
+    "description": "Define the functions to test a program of CandyWrappers.",
     "definitions": {
-        "execute": {
+        "1.0.0": {
             "type": "object",
             "required": [
                 "task",
-                "commands"
+                "program"
             ],
             "properties": {
                 "task": {
                     "type": "string",
-                    "pattern": "^execute$"
+                    "pattern": "^test_program$"
                 },
-                "commands": {
-                    "$ref": "definitions.schema.json#/definitions/nonemptyarray"
+                "program": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/path"
                 }
             }
         }

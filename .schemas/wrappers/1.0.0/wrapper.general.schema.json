@@ -1,0 +1,66 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Wrapper schema",
+    "description": "Definitions of the wrappers to use in CandyWrappers.",
+    "type": "object",
+    "required": [
+        "wrappers"
+    ],
+    "properties": {
+        "wrappers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "id": {
+                        "$ref": "#/definitions/id"
+                    },
+                    "buffer": {
+                        "type": "boolean"
+                    },
+                    "nonewscope": {
+                        "type": "boolean"
+                    },
+                    "dependof": {
+                        "type": "object",
+                        "required": [
+                            "id"
+                        ],
+                        "properties": {
+                            "id": {
+                                "$ref": "#/definitions/id"
+                            },
+                            "success": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "onerror": {
+                        "type": "string",
+                        "enum": [
+                            "break",
+                            "ignore",
+                            "silent_ignore"
+                        ]
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "ignore": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_\\-\\/\\\\]+$"
+        }
+    }
+}
