@@ -60,7 +60,7 @@
     "definitions": {
         "id": {
             "type": "string",
-            "pattern": "^[a-zA-Z0-9_\\-\\/\\\\]+$"
+            "pattern": "^(?!cw\\/.+$)[a-zA-Z0-9_\\-\\/\\\\]+$"
         }
     }
 }
