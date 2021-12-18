@@ -13,6 +13,12 @@
             "items": {
                 "anyOf": [
                     {
+                        "$ref": "../buffer_create.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../buffer_show.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
                         "$ref": "../compress.definitions.schema.json#/definitions/1.0.0"
                     },
                     {

@@ -409,6 +409,35 @@ function Format-Output {
         Write-Output -InputObject $Output;
     }
 }
+function ConvertFrom-Buffer {
+    [CmdletBinding()]
+    param (
+        [ValidateNotNull()]
+        [string]
+        $Value
+    );
+    if($Value -match "^.*({\s*[a-zA-Z0-9_\-\/\\]+([.]\w+)+\s*}).*$") {
+        $Groups = [System.Collections.ArrayList]::new();
+        Select-String -Pattern "({\s*[a-zA-Z0-9_\-\/\\]+([.]\w+)+\s*})" -InputObject $Value -AllMatches
+            | Select-Object -ExpandProperty Matches
+            | Select-Object -ExpandProperty Captures
+            | Select-Object -ExpandProperty value
+            | ForEach-Object -Process {
+                $New = $Buffers;
+                foreach($Item in $($_ -replace "{|}" -split "[.]")) {
+                    $New = $New[$Item];
+                }
+                [void]$Groups.Add(@{
+                    Old = $_;
+                    New = [System.String]$New;
+                });
+            };
+        foreach ($Group in $Groups) {
+            $Value = $Value -replace $Group['Old'],$Group['New'];
+        }
+    }
+    Write-Output -InputObject $Value;
+}
 $ExitCode = -1;
 $Output = @{};
 if($CandySystem -eq "Execute") {
@@ -567,7 +596,7 @@ if($CandySystem -eq "Execute") {
                 }
             }
             $AllIgnored = $false;
-            $NoNewScope = $Task['nonewscope'] ?? $false -or @("cw_break") -contains $Task['task'];
+            $NoNewScope = $Task['nonewscope'] ?? $false -or @("buffer_create","buffer_show","cw_break") -contains $Task['task'];
             Write-Message;
             Write-Line -Message "$($Task['task'])[$($Task['id'])]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
             Write-Message;
@@ -578,11 +607,33 @@ if($CandySystem -eq "Execute") {
                 Write-ErrorMessage -Message "The task[$($Task['task'])] doesn't exist in the selected version[$SelectedVersion]";
                 break;
             }
+            $Keys = [System.String[]]$Task.Keys;
+            for ($j = 0; $j -lt $Keys.Count; $j++) {
+                $Key = $Keys[$j];
+                $Property = $Task[$Key];
+                if (@("id","task","dependof","onerror") -contains $Key) {
+                    continue;
+                }
+                if($Property -isnot [System.String] -and $Property -isnot [System.Object[]]) {
+                    continue;
+                }
+                if($Property -is [System.Object[]]) {
+                    for ($k = 0; $k -lt $Property.Count; $k++) {
+                        $Property[$k] = ConvertFrom-Buffer -Value $Property[$k];
+                    }
+                } else {
+                    $Property = ConvertFrom-Buffer -Value $Property;
+                }
+                $Task[$Key] = $Property;
+            }
             $Response = Invoke-Command -NoNewScope:$NoNewScope -ScriptBlock $TaskExecution -ArgumentList $Task;
             $ExitCode = 0;
             $TasksExecution[$Task['id']] = $Response['Success'];
             if($Task['buffer']) {
+                $Buffers['cw/last'] = $Response;
                 $Buffers[$Task['id']] = $Response;
+                $Buffers['cw/last/task'] = $Task;
+                $Buffers["cw/task/$($Task['id'])"] = $Task;
             }
             if($Response['Success'] -eq $true) {
                 $ExitCode = 0;

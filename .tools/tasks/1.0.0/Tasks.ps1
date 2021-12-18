@@ -1,4 +1,6 @@
 Write-Output -InputObject @{
+    "buffer_create" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\buffer_create.ps1" -Version "1.0.0"));
+    "buffer_show" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\buffer_show.ps1" -Version "1.0.0"));
     "compress" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\compress.ps1" -Version "1.0.0"));
     "create_directory" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\create_directory.ps1" -Version "1.0.0"));
     "decompress" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\decompress.ps1" -Version "1.0.0"));
