@@ -21,7 +21,7 @@ param(
     )]
     [ValidateSet(
         "Execute",
-        "Github",
+        "Repositories",
         "Validate",
         "Version"
     )]
@@ -56,27 +56,30 @@ param(
     [int]
     $Build = 0,
     [switch]
+    $Compress,
+    [switch]
+    $JoinStreams,
+    [switch]
+    $Log,
+    [switch]
+    $NoBreak,
+    [switch]
     $NoColor,
     [switch]
     $NoExit,
+    [switch]
+    $NoInteractive,
     [Alias(
         "Quiet",
         "Hide",
         "Mute"
     )]
     [switch]
-    $Silent,
-    [switch]
-    $NoInteractive,
-    [switch]
-    $NoBreak,
-    [switch]
-    $JoinStreams
+    $Silent
 );
 $ErrorActionPreference = "stop";
 $Invocation = $MyInvocation;
 $CandyVersion = "1.0.0";
-$GithubRepository = "https://github.com/RobertoRojas/CandyWrappers";
 function Write-Line {
     [CmdletBinding()]
     param(
@@ -405,7 +408,7 @@ function Format-Output {
     if($Type -eq "PSCustomObject") {
         Write-Output -InputObject $([pscustomobject]$Output);
     } elseif($Type -eq "JSON") {
-        Write-Output -InputObject $(ConvertTo-Json -Depth 10 -InputObject $Output);
+        Write-Output -InputObject $(ConvertTo-Json -Depth 10 -Compress:$Compress -InputObject $Output);
     } elseif($Type -eq "Hashtable") {
         Write-Output -InputObject $Output;
     }
@@ -456,10 +459,38 @@ $Configuration = @{
         Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("modules",$SelectedVersion,"Modules.ps1");
     }
 }
+Write-Line -Message "Candy Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+Write-Message;
+Write-Message -Message "Candy     : " -NoNewLine -ForegroundColor DarkCyan;
+Write-Message -Message $CandyVersion -ForegroundColor Cyan;
+Write-Message -Message "Wrapper   : " -NoNewLine -ForegroundColor DarkCyan;
+Write-Message -Message $SelectedVersion -ForegroundColor Cyan;
+Write-Message -Message "Execution : " -NoNewLine -ForegroundColor DarkCyan;
+Write-Message -Message $(Get-Location).Path -ForegroundColor Cyan;
+Write-Message -Message "Script    : " -NoNewLine -ForegroundColor DarkCyan;
+Write-Message -Message $PSScriptRoot -ForegroundColor Cyan;
+Write-Message;
+Write-Line -Message "Parameters" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+Write-Message;
+if($Invocation.BoundParameters.Keys.Count -gt 0) {
+    if($Log) {
+        $Output.Add('parameters', @());
+    }
+    foreach($Item in $Invocation.BoundParameters.GetEnumerator()) {
+        if($Log) {
+            $Output['parameters'] += @{
+                Key = $($Item.Key).ToString();
+                Value = $($Item.Value).ToString();
+            };
+        }
+        Write-Line -Message "-$($Item.Key) $($Item.Value)" -Line " " -Corner " " -MessageForegroundColor Magenta;
+    }
+} else {
+    Write-Line -Message "Nothing to show" -Line " " -Corner " " -MessageForegroundColor DarkGray;
+}
+Write-Message;
 if($CandySystem -eq "Execute") {
     try {
-        Write-Line -Message "Candy Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
-        Write-Message;
         if($null -eq $Wrappers) {
             if(Test-Path -LiteralPath $Configuration['Wrapper']['Execution']) {
                 $Wrappers = @($Configuration['Wrapper']['Execution']);
@@ -469,15 +500,6 @@ if($CandySystem -eq "Execute") {
                 throw "$($Invocation.MyCommand.Name) : Cannot find any wrapper to execute";
             }
         }
-        Write-Message -Message "Candy     : " -NoNewLine -ForegroundColor DarkCyan;
-        Write-Message -Message $CandyVersion -ForegroundColor Cyan;
-        Write-Message -Message "Wrapper   : " -NoNewLine -ForegroundColor DarkCyan;
-        Write-Message -Message $SelectedVersion -ForegroundColor Cyan;
-        Write-Message -Message "Execution : " -NoNewLine -ForegroundColor DarkCyan;
-        Write-Message -Message $(Get-Location).Path -ForegroundColor Cyan;
-        Write-Message -Message "Script    : " -NoNewLine -ForegroundColor DarkCyan;
-        Write-Message -Message $PSScriptRoot -ForegroundColor Cyan;
-        Write-Message;
         Write-Line -Message "Import modules" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
         Write-Message;
         if(-not (Test-Path -LiteralPath $Configuration['Modules']['Script'])) {
@@ -494,6 +516,11 @@ if($CandySystem -eq "Execute") {
                 Version = $ModuleVersion;
             });
         }
+        if($Log) {
+            $Output.Add('version', $CandyVersion);
+            $Output.Add('selected', $SelectedVersion);
+            $Output.Add('modules', $ModulesList.ToArray());
+        }
         Write-Message;
         Write-Line -Message "Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
         Write-Message;
@@ -502,6 +529,9 @@ if($CandySystem -eq "Execute") {
         }
         if(-not (Test-Path -LiteralPath $Configuration['Wrapper']['Schema'])) {
             throw "$($Invocation.MyCommand.Name) : Cannot find the schema path[$($Configuration['Wrapper']['Schema'])]";
+        }
+        if($Log) {
+            $Output.Add('wrappers', $Wrappers);
         }
         $Tasks = [System.Collections.ArrayList]::new();
         for ($i = 0; $i -lt $Wrappers.Count; $i++) {
@@ -571,6 +601,9 @@ if($CandySystem -eq "Execute") {
                 }
             }
         }
+        if($Log) {
+            $Output.Add('tasks', $Tasks.ToArray());
+        }
         Write-Message;
         Write-Line -Message "Execution" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
         if(-not (Test-Path -LiteralPath $Configuration['Tasks']['Script'])) {
@@ -580,6 +613,9 @@ if($CandySystem -eq "Execute") {
         $TasksExecution = @{};
         $Buffers = @{};
         $AllIgnored = $true;
+        if($Log) {
+            $Output.Add('execution', @());
+        }
         for ($i = 0; $i -lt $Tasks.Count; $i++) {
             $Task = $Tasks[$i];
             $TaskExecution = $TasksImplementation[$Task['task']];
@@ -636,6 +672,12 @@ if($CandySystem -eq "Execute") {
                 $Buffers['cw/last/task'] = $Task;
                 $Buffers["cw/task/$($Task['id'])"] = $Task;
             }
+            if($Log) {
+                $Output['execution'] += @{
+                    Task = $Task;
+                    Response = $Response;
+                };
+            }
             if($Response['Success'] -eq $true) {
                 $ExitCode = 0;
             } else {
@@ -687,19 +729,18 @@ if($CandySystem -eq "Execute") {
         }
         Write-Line -LineForegroundColor DarkCyan;
     }
-} elseif($CandySystem -eq "Github") {
+} elseif($CandySystem -eq "Repositories") {
     $ExitCode = 0;
-    Write-Line -Message "Github" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+    $GithubRepository = "https://github.com/RobertoRojas/CandyWrappers";
+    Write-Line -Message "Repositories" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
     Write-Message;
     Write-Line -Message $GithubRepository -Line " " -Corner " " -MessageForegroundColor Green;
     Write-Message;
     Write-Line -LineForegroundColor DarkCyan;
-    $Output['GithubRepository'] = $GithubRepository;
+    $Output['githubrepository'] = $GithubRepository;
 } elseif ($CandySystem -eq "Validate") {
     $ExitCode = 0;
     $Output['wrappers'] = @();
-    Write-Line -Message "Candy Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
-    Write-Message;
     try {
         if($null -eq $Wrappers) {
             if(Test-Path -LiteralPath $Configuration['Wrapper']['Execution']) {
@@ -710,15 +751,6 @@ if($CandySystem -eq "Execute") {
                throw "$($Invocation.MyCommand.Name) : Cannot find any wrapper to execute";
             }
         }
-        Write-Message -Message "Candy     : " -NoNewLine -ForegroundColor DarkCyan;
-        Write-Message -Message $CandyVersion -ForegroundColor Cyan;
-        Write-Message -Message "Wrapper   : " -NoNewLine -ForegroundColor DarkCyan;
-        Write-Message -Message $SelectedVersion -ForegroundColor Cyan;
-        Write-Message -Message "Execution : " -NoNewLine -ForegroundColor DarkCyan;
-        Write-Message -Message $(Get-Location).Path -ForegroundColor Cyan;
-        Write-Message -Message "Script    : " -NoNewLine -ForegroundColor DarkCyan;
-        Write-Message -Message $PSScriptRoot -ForegroundColor Cyan;
-        Write-Message;
         for ($i = 0; $i -lt $Wrappers.Count; $i++) {
             $Wrapper = $Wrappers[$i];
             if($Wrapper -is [hashtable]) {
@@ -837,12 +869,25 @@ if($CandySystem -eq "Execute") {
         Write-Message;
     }
     Write-Line -LineForegroundColor DarkCyan;
-    $Output['Version'] = $CandyVersion;
-    $Output['Selected'] = $SelectedVersion;
+    $Output['version'] = $CandyVersion;
+    $Output['selected'] = $SelectedVersion;
 } else {
     Write-ErrorMessage -Message "The CandySystem[$($CandySystem)] is not implemented";
 }
-$Output['ExitCode'] = $ExitCode; 
+$Output['exitcode'] = $ExitCode;
+if($Log) {
+    $LogDirectory = "./.candy/logs";
+    $LogFile = "$LogDirectory/$($(Get-Date).ToFileTime())";
+    if(-not (Test-Path -LiteralPath $LogDirectory)) {
+        New-Item -ItemType Directory -Path $LogDirectory | Out-Null;
+    }
+    Out-File -FilePath $LogFile -Encoding utf8 -InputObject $(Format-Output -Type JSON -Output $Output);
+    Write-Message;
+    Write-Message -Message "Log file  : " -NoNewLine -ForegroundColor DarkCyan;
+    Write-Message -Message $LogFile -ForegroundColor Cyan;
+    Write-Message;
+    Write-Line -LineForegroundColor DarkCyan;
+}
 Write-Output -InputObject $(Format-Output -Type $Type -Output $Output);
 if(-not $NoExit) {
     exit $ExitCode;
