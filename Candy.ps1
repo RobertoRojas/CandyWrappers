@@ -21,8 +21,9 @@ param(
     )]
     [ValidateSet(
         "Execute",
-        "Version",
-        "Github"
+        "Github",
+        "Validate",
+        "Version"
     )]
     [string]
     $CandySystem = "Execute",
@@ -197,10 +198,10 @@ function Write-Line {
         }
         if(-not $NoColor) {
             if($MessageForegroundColor) {
-                $Parameters["ForegroundColor"]  = $MessageForegroundColor;
+                $Parameters['ForegroundColor']  = $MessageForegroundColor;
             }
             if($MessageBackgroundColor) {
-                $Parameters["BackgroundColor"] = $MessageBackgroundColor;
+                $Parameters['BackgroundColor'] = $MessageBackgroundColor;
             }
         }
         Write-Message @Parameters;
@@ -222,18 +223,18 @@ function Write-Line {
         };
         if(-not $NoColor) { 
             if($LineForegroundColor) {
-                $CornerParameter["ForegroundColor"] = $LineForegroundColor;
-                $LineParameter["ForegroundColor"] = $LineForegroundColor;
+                $CornerParameter['ForegroundColor'] = $LineForegroundColor;
+                $LineParameter['ForegroundColor'] = $LineForegroundColor;
             }
             if($LineBackgroundColor) {
-                $CornerParameter["BackgroundColor"] = $LineBackgroundColor;
-                $LineParameter["BackgroundColor"] = $LineBackgroundColor;
+                $CornerParameter['BackgroundColor'] = $LineBackgroundColor;
+                $LineParameter['BackgroundColor'] = $LineBackgroundColor;
             }
             if($MessageForegroundColor) {
-                $MessageParameter["ForegroundColor"] = $MessageForegroundColor;
+                $MessageParameter['ForegroundColor'] = $MessageForegroundColor;
             }
             if($MessageBackgroundColor) {
-                $MessageParameter["BackgroundColor"] = $MessageBackgroundColor;
+                $MessageParameter['BackgroundColor'] = $MessageBackgroundColor;
             }
         }
         $Width -= 2;
@@ -319,10 +320,10 @@ function Write-Message {
     };
     if(-not $NoColor) {
         if($ForegroundColor) {
-            $Parameters["ForegroundColor"] = $ForegroundColor;
+            $Parameters['ForegroundColor'] = $ForegroundColor;
         }
         if($BackgroundColor) {
-            $Parameters["BackgroundColor"] = $BackgroundColor;
+            $Parameters['BackgroundColor'] = $BackgroundColor;
         }
     }
     if($Stream -eq "Output") {
@@ -350,7 +351,7 @@ function Write-ErrorMessage {
     param(
         [ValidateNotNullOrEmpty()]
         [string]
-        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory."),
+        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory"),
         [switch]
         $NoDisplay
     );
@@ -364,7 +365,7 @@ function Write-VerboseMessage {
     param(
         [ValidateNotNullOrEmpty()]
         [string]
-        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory."),
+        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory"),
         [switch]
         $NoDisplay
     );
@@ -378,7 +379,7 @@ function Write-DebugMessage {
     param(
         [ValidateNotNullOrEmpty()]
         [string]
-        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory."),
+        $Message = $(throw "$($Invocation.MyCommand.Name) -> $($MyInvocation.MyCommand.Name) : The Message parameter is mandatory"),
         [switch]
         $NoDisplay
     );
@@ -440,22 +441,22 @@ function ConvertFrom-Buffer {
 }
 $ExitCode = -1;
 $Output = @{};
-if($CandySystem -eq "Execute") {
-    $SelectedVersion = "$Major.$Minor.$Build";
-    $Configuration = @{
-        Wrapper = @{
-            Execution = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
-            Program = Join-Path -Path $PSScriptRoot -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
-            Schema = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("wrappers",$SelectedVersion,"wrapper.schema.json");
-            SchemaGeneral = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("wrappers",$SelectedVersion,"wrapper.general.schema.json");
-        };
-        Tasks = @{
-            Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("tasks",$SelectedVersion,"Tasks.ps1");
-        };
-        Modules = @{
-            Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("modules",$SelectedVersion,"Modules.ps1");
-        }
+$SelectedVersion = "$Major.$Minor.$Build";
+$Configuration = @{
+    Wrapper = @{
+        Execution = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
+        Program = Join-Path -Path $PSScriptRoot -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
+        Schema = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("wrappers",$SelectedVersion,"wrapper.schema.json");
+        SchemaGeneral = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("wrappers",$SelectedVersion,"wrapper.general.schema.json");
+    };
+    Tasks = @{
+        Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("tasks",$SelectedVersion,"Tasks.ps1");
+    };
+    Modules = @{
+        Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("modules",$SelectedVersion,"Modules.ps1");
     }
+}
+if($CandySystem -eq "Execute") {
     try {
         Write-Line -Message "Candy Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
         Write-Message;
@@ -465,7 +466,7 @@ if($CandySystem -eq "Execute") {
             } elseif (Test-Path -LiteralPath $Configuration['Wrapper']['Program']) {
                 $Wrappers = @($Configuration['Wrapper']['Program']);
             } else {
-                throw "$($Invocation.MyCommand.Name) : Cannot find any wrapper to execute.";
+                throw "$($Invocation.MyCommand.Name) : Cannot find any wrapper to execute";
             }
         }
         Write-Message -Message "Candy     : " -NoNewLine -ForegroundColor DarkCyan;
@@ -480,7 +481,7 @@ if($CandySystem -eq "Execute") {
         Write-Line -Message "Import modules" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
         Write-Message;
         if(-not (Test-Path -LiteralPath $Configuration['Modules']['Script'])) {
-            throw "$($Invocation.MyCommand.Name) : Cannot find the modules[$($Configuration['Modules']['Script'])] file to import the modules list.";
+            throw "$($Invocation.MyCommand.Name) : Cannot find the modules[$($Configuration['Modules']['Script'])] file to import the modules list";
         }
         $ModulesList = [System.Collections.ArrayList]::new();
         foreach($Module in $(. $Configuration['Modules']['Script'])) {
@@ -507,7 +508,7 @@ if($CandySystem -eq "Execute") {
             $Wrapper = $Wrappers[$i];
             if($Wrapper -is [hashtable]) {
                 if($null -eq $Wrapper['Path']) {
-                    throw "$($Invocation.MyCommand.Name) : The wrapper[$i] property path is mandatory";
+                    throw "$($Invocation.MyCommand.Name) : The wrapper[$i] hash property path is mandatory";
                 }
                 $Task = @{
                     Path = $Wrapper['Path'];
@@ -524,7 +525,7 @@ if($CandySystem -eq "Execute") {
                 throw "$($Invocation.MyCommand.Name) : The wrapper element[$i] is not a valid type[$($Wrapper.GetType().Name)]";
             }
             if(-not (Test-Path -LiteralPath $Task['Path'])) {
-                throw "$($Invocation.MyCommand.Name) : The wrapper path[$()] doesn't exist";
+                throw "$($Invocation.MyCommand.Name) : The wrapper path[$($Task['Path'])] doesn't exist";
             }
             $WrapperJSON = Get-Content -LiteralPath $Task['Path'] | Out-String;
             try {
@@ -573,9 +574,9 @@ if($CandySystem -eq "Execute") {
         Write-Message;
         Write-Line -Message "Execution" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
         if(-not (Test-Path -LiteralPath $Configuration['Tasks']['Script'])) {
-            throw "$($Invocation.MyCommand.Name) : Cannot find the task[$($Configuration['Tasks']['Script'])] file to import the wrappers.";
+            throw "$($Invocation.MyCommand.Name) : Cannot find the task[$($Configuration['Tasks']['Script'])] file to import the wrappers";
         }
-        $TasksImplementation =  . $Configuration['Tasks']['Script'];
+        $TasksImplementation = . $Configuration['Tasks']['Script'];
         $TasksExecution = @{};
         $Buffers = @{};
         $AllIgnored = $true;
@@ -589,9 +590,9 @@ if($CandySystem -eq "Execute") {
                 $DependencyTask = $TasksExecution[$Task['dependof']['id']];
                 $DependencyValue = $Task['dependof']['success'] ?? $true;
                 if($null -ne $DependencyTask -and $DependencyTask -eq $DependencyValue) {
-                    Write-VerboseMessage -Message "`nThe dependency[$($Task['dependof']['id'])] of the wrapper[$($Task['id'])] is correct.";
+                    Write-VerboseMessage -Message "`nThe dependency[$($Task['dependof']['id'])] of the wrapper[$($Task['id'])] is correct";
                 } else {
-                    Write-VerboseMessage -Message "Ignored wrapper because the dependency had a wrong value or it was not executed.";
+                    Write-VerboseMessage -Message "Ignored wrapper because the dependency had a wrong value or it was not executed";
                     continue;
                 }
             }
@@ -640,7 +641,7 @@ if($CandySystem -eq "Execute") {
             } else {
                 $ErrorAction = $Task['onerror'] ?? $OnError;
                 if($ErrorAction -eq "ignore" -or $ErrorAction -eq "silent_ignore"){
-                    Write-ErrorMessage -Message "`nError in the wrapper[$($Task['task'])] was ignored." -NoDisplay:$($ErrorAction -eq "silent_ignore");
+                    Write-ErrorMessage -Message "`nError in the wrapper[$($Task['task'])] was ignored" -NoDisplay:$($ErrorAction -eq "silent_ignore");
                 } else {
                     $ExitCode = 2;
                     $Response['Break'] = $true;
@@ -686,14 +687,6 @@ if($CandySystem -eq "Execute") {
         }
         Write-Line -LineForegroundColor DarkCyan;
     }
-} elseif($CandySystem -eq "Version") {
-    $ExitCode = 0;
-    Write-Line -Message "Version" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
-    Write-Message;
-    Write-Line -Message $CandyVersion -Line " " -Corner " " -MessageForegroundColor Green;
-    Write-Message;
-    Write-Line -LineForegroundColor DarkCyan;
-    $Output["Version"] = $CandyVersion;
 } elseif($CandySystem -eq "Github") {
     $ExitCode = 0;
     Write-Line -Message "Github" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
@@ -701,11 +694,155 @@ if($CandySystem -eq "Execute") {
     Write-Line -Message $GithubRepository -Line " " -Corner " " -MessageForegroundColor Green;
     Write-Message;
     Write-Line -LineForegroundColor DarkCyan;
-    $Output["GithubRepository"] = $GithubRepository;
+    $Output['GithubRepository'] = $GithubRepository;
+} elseif ($CandySystem -eq "Validate") {
+    $ExitCode = 0;
+    $Output['wrappers'] = @();
+    Write-Line -Message "Candy Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+    Write-Message;
+    try {
+        if($null -eq $Wrappers) {
+            if(Test-Path -LiteralPath $Configuration['Wrapper']['Execution']) {
+                $Wrappers = @($Configuration['Wrapper']['Execution']);
+            } elseif (Test-Path -LiteralPath $Configuration['Wrapper']['Program']) {
+                $Wrappers = @($Configuration['Wrapper']['Program']);
+            } else {
+               throw "$($Invocation.MyCommand.Name) : Cannot find any wrapper to execute";
+            }
+        }
+        Write-Message -Message "Candy     : " -NoNewLine -ForegroundColor DarkCyan;
+        Write-Message -Message $CandyVersion -ForegroundColor Cyan;
+        Write-Message -Message "Wrapper   : " -NoNewLine -ForegroundColor DarkCyan;
+        Write-Message -Message $SelectedVersion -ForegroundColor Cyan;
+        Write-Message -Message "Execution : " -NoNewLine -ForegroundColor DarkCyan;
+        Write-Message -Message $(Get-Location).Path -ForegroundColor Cyan;
+        Write-Message -Message "Script    : " -NoNewLine -ForegroundColor DarkCyan;
+        Write-Message -Message $PSScriptRoot -ForegroundColor Cyan;
+        Write-Message;
+        for ($i = 0; $i -lt $Wrappers.Count; $i++) {
+            $Wrapper = $Wrappers[$i];
+            if($Wrapper -is [hashtable]) {
+                if($null -eq $Wrapper['Path']) {
+                    Write-Message;
+                    $ExitCode = 1;
+                    $Output['wrappers'] += @{
+                        Path = "uknown";
+                        Message = "The wrapper[$i] hash property path is mandatory";
+                        Success = $false;
+                    };
+                    continue;
+                }
+                $Task = @{
+                    Path = $Wrapper['Path'];
+                };
+            } elseif ($Wrapper -is [string]) {
+                $Task = @{
+                    Path = $Wrapper;
+                };
+            } else {
+                $ExitCode = 1;
+                $Output['wrappers'] += @{
+                    Path = "uknown";
+                    Message = "The wrapper element[$i] is not a valid type[$($Wrapper.GetType().Name)]";
+                    Success = $false;
+                };
+                continue;
+            }
+            if(-not (Test-Path -LiteralPath $Task['Path'])) {
+                $ExitCode = 1;
+                $Output['wrappers'] += @{
+                    Path = $Task['Path'];
+                    Message = "The wrapper path[$($Task['Path'])] doesn't exist";
+                    Success = $false;
+                };
+                continue;
+            }
+            $WrapperJSON = Get-Content -LiteralPath $Task['Path'] | Out-String;
+            try {
+                Test-Json -Json $WrapperJSON -SchemaFile $Configuration['Wrapper']['SchemaGeneral'] | Out-Null;
+            } catch {
+                $Message = $_.Exception.Message;
+                $ErrorDetails = $_.ErrorDetails.Message;
+                if($ErrorDetails) {
+                    $Message += "`n$ErrorDetails";
+                }
+                $ExitCode = 1;
+                $Output['wrappers'] += @{
+                    Path = $Task['Path'];
+                    Message = $Message;
+                    Success = $false;
+                };
+                continue;
+            }
+            try {
+                Test-Json -Json $WrapperJSON -SchemaFile $Configuration['Wrapper']['Schema'] | Out-Null;
+            } catch {
+                $Message = $_.Exception.Message;
+                $ErrorDetails = $_.ErrorDetails.Message;
+                if($ErrorDetails) {
+                    $Message += "`n$ErrorDetails";
+                }
+                $ExitCode = 1;
+                $Output['wrappers'] += @{
+                    Path = $Task['Path'];
+                    Message = $Message;
+                    Success = $false;
+                };
+                continue;
+            }
+            $Output['wrappers'] += @{
+                Path = $Task['Path'];
+                Message = "Valid JSON";
+                Success = $true;
+            };
+        }
+        Write-Line -Message "Wrappers files" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+        Write-Message;
+        for ($i = 0; $i -lt $Output['wrappers'].Count; $i++) {
+            $Test = $Output['wrappers'][$i];
+            Write-Line -Message "[$i] - $($Test['Path'])" -Line " " -Corner " " -MessageForegroundColor Magenta;
+        }
+        Write-Message;
+        Write-Line -Message "Validate" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+        Write-Message;
+        for ($i = 0; $i -lt $Output['wrappers'].Count; $i++) {
+            $Test = $Output['wrappers'][$i];
+            Write-Message;
+            Write-Line -Message "wrapper[$i]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
+            Write-Message;
+            if($Test['Success']) {
+                Write-Line -Message "Valid" -Line " " -Corner " " -LineBackgroundColor Green -MessageForegroundColor White -MessageBackgroundColor Green;
+            } else {
+                Write-Line -Message "No valid" -Line " " -Corner " " -LineBackgroundColor Red -MessageForegroundColor White -MessageBackgroundColor Red;
+            }
+            Write-VerboseMessage -Message $Test['Message'];
+        }
+    } catch {
+        $ExitCode = 1;
+        Write-ErrorMessage -Message $_.Exception.Message;
+    } finally {
+        Write-Message;
+        Write-Line -LineForegroundColor DarkCyan;
+    }
+} elseif($CandySystem -eq "Version") {
+    $ExitCode = 0;
+    Write-Line -Message "Version" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+    Write-Message;
+    Write-Line -Message $CandyVersion -Line " " -Corner " " -MessageForegroundColor Green;
+    Write-Message;
+    if($CandyVersion -ne $SelectedVersion) { 
+        Write-Line -Message "Selected version" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+        Write-Message;
+        Write-Line -Message $SelectedVersion -Line " " -Corner " " -MessageForegroundColor Green;
+        Write-Message;
+    }
+    Write-Line -LineForegroundColor DarkCyan;
+    $Output['Version'] = $CandyVersion;
+    $Output['Selected'] = $SelectedVersion;
 } else {
-    Write-ErrorMessage -Message "The CandySystem[$($CandySystem)] is not implemented.";
+    Write-ErrorMessage -Message "The CandySystem[$($CandySystem)] is not implemented";
 }
-$Output["ExitCode"] = $ExitCode; 
+$Output['ExitCode'] = $ExitCode; 
 Write-Output -InputObject $(Format-Output -Type $Type -Output $Output);
 if(-not $NoExit) {
     exit $ExitCode;
