@@ -37,6 +37,15 @@
                         "$ref": "../cw_pause.definitions.schema.json#/definitions/1.0.0"
                     },
                     {
+                        "$ref": "../get_file.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../execute.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../execute.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
                         "$ref": "../execute.definitions.schema.json#/definitions/1.0.0"
                     },
                     {

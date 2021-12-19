@@ -38,6 +38,10 @@
             "items": {
                 "$ref": "#/definitions/nonemptystring"
             }
+        },
+        "positiveintenger": {
+            "type": "integer",
+            "minimum": 0
         }
     }
 }

@@ -10,6 +10,7 @@ Write-Output -InputObject @{
     "cw_task" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\cw_task.ps1" -Version "1.0.0"));
     "download" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\download.ps1" -Version "1.0.0"));
     "execute" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\execute.ps1" -Version "1.0.0"));
+    "get_file" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\get_file.ps1" -Version "1.0.0"));
     "invoke_program" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\invoke_program.ps1" -Version "1.0.0"));
     "remove_path" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\remove_path.ps1" -Version "1.0.0"));
     "set_file" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\set_file.ps1" -Version "1.0.0"));
