@@ -25,9 +25,6 @@
                         "$ref": "../create_directory.definitions.schema.json#/definitions/1.0.0"
                     },
                     {
-                        "$ref": "../decompress.definitions.schema.json#/definitions/1.0.0"
-                    },
-                    {
                         "$ref": "../cw_break.definitions.schema.json#/definitions/1.0.0"
                     },
                     {
@@ -37,19 +34,19 @@
                         "$ref": "../cw_pause.definitions.schema.json#/definitions/1.0.0"
                     },
                     {
-                        "$ref": "../get_file.definitions.schema.json#/definitions/1.0.0"
-                    },
-                    {
-                        "$ref": "../execute.definitions.schema.json#/definitions/1.0.0"
-                    },
-                    {
-                        "$ref": "../execute.definitions.schema.json#/definitions/1.0.0"
-                    },
-                    {
-                        "$ref": "../execute.definitions.schema.json#/definitions/1.0.0"
-                    },
-                    {
                         "$ref": "../cw_task.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../decompress.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../download.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../execute.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../get_file.definitions.schema.json#/definitions/1.0.0"
                     },
                     {
                         "$ref": "../invoke_program.definitions.schema.json#/definitions/1.0.0"
@@ -65,9 +62,6 @@
                     },
                     {
                         "$ref": "../test_program.definitions.schema.json#/definitions/1.0.0"
-                    },
-                    {
-                        "$ref": "../download.definitions.schema.json#/definitions/1.0.0"
                     }
                 ]
             }
