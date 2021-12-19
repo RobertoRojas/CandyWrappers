@@ -40,6 +40,9 @@
                         "$ref": "../execute.definitions.schema.json#/definitions/1.0.0"
                     },
                     {
+                        "$ref": "../cw_task.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
                         "$ref": "../invoke_program.definitions.schema.json#/definitions/1.0.0"
                     },
                     {

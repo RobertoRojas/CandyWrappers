@@ -7,6 +7,7 @@ Write-Output -InputObject @{
     "cw_break" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\cw_break.ps1" -Version "1.0.0"));
     "cw_echo" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\cw_echo.ps1" -Version "1.0.0"));
     "cw_pause" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\cw_pause.ps1" -Version "1.0.0"));
+    "cw_task" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\cw_task.ps1" -Version "1.0.0"));
     "download" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\download.ps1" -Version "1.0.0"));
     "execute" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\execute.ps1" -Version "1.0.0"));
     "invoke_program" = [ScriptBlock]::Create($(. "$PSScriptRoot\..\invoke_program.ps1" -Version "1.0.0"));
