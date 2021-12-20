@@ -6,13 +6,14 @@ param (
     [string]
     $Version = $(throw "$($MyInvocation.MyCommand.Name) -> You need to send the version of the script block")
 );
+$ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
     "1.0.0" = {
         [CmdletBinding()]
         param (
             [hashtable]
-            $Parameters = $(throw "Parameters need to be defined.")
+            $Parameters = $(throw "Parameters need to be defined")
         );
         $Parameters['raw'] = $Parameters['raw'] ?? $false;
         $Parameters['like'] = $Parameters['like'] ?? "*";
@@ -21,7 +22,7 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
         $Output = @{};
         try {
             if(-not (Test-Path -LiteralPath $Parameters['path'])) {
-                throw "The path[$($Parameters['path'])] doesn't exists.";
+                throw "The path[$($Parameters['path'])] doesn't exists";
             }
             $Arguments = @{
                 LiteralPath = $Parameters['path'];

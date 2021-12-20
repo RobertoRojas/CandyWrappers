@@ -6,13 +6,14 @@ param (
     [string]
     $Version = $(throw "$($MyInvocation.MyCommand.Name) -> You need to send the version of the script block")
 );
+$ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
     "1.0.0" = {
         [CmdletBinding()]
         param (
             [hashtable]
-            $Parameters = $(throw "Parameters need to be defined.")
+            $Parameters = $(throw "Parameters need to be defined")
         );
         $Output = @{
             URI = $Parameters['uri'];
@@ -22,7 +23,7 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
                 if($Parameters['force']) {
                     Remove-Item -LiteralPath $Parameters['file'];
                 } else {
-                    throw "The path[$($Parameters['path'])] already exist, please use 'force' to delete it.";
+                    throw "The path[$($Parameters['path'])] already exist, please use 'force' to delete it";
                 }
             }
             $Response = Invoke-WebRequest -Uri $Parameters['uri'] -OutFile $Parameters['file'] -PassThru;

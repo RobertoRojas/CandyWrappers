@@ -6,19 +6,20 @@ param (
     [string]
     $Version = $(throw "$($MyInvocation.MyCommand.Name) -> You need to send the version of the script block")
 );
+$ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
     "1.0.0" = {
         [CmdletBinding()]
         param (
             [hashtable]
-            $Parameters = $(throw "Parameters need to be defined.")
+            $Parameters = $(throw "Parameters need to be defined")
         );
         $Total = $Elapsed = $Parameters['milliseconds'] / 1000;
         Write-VerboseMessage -Message "Total seconds to wait: $Total";
         if($Total -eq 0) {
             if($NoInteractive) {
-                Write-Line -Message "No interactive, skip pause." -Line " " -Corner " " `
+                Write-Line -Message "No interactive, skip pause" -Line " " -Corner " " `
                     -MessageForegroundColor Black -MessageBackgroundColor DarkGray `
                     -LineBackgroundColor DarkGray;
             } else {

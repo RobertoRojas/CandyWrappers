@@ -6,13 +6,14 @@ param (
     [string]
     $Version = $(throw "$($MyInvocation.MyCommand.Name) -> You need to send the version of the script block")
 );
+$ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
     "1.0.0" = {
         [CmdletBinding()]
         param (
             [hashtable]
-            $Parameters = $(throw "Parameters need to be defined.")
+            $Parameters = $(throw "Parameters need to be defined")
         );
         $Parameters['force'] = $Parameters['force'] ?? $false;
         $Parameters['compression'] = $Parameters['compression'] ?? "Optimal";
@@ -21,7 +22,7 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
         };
         try {
             if((Test-Path -LiteralPath $Parameters['destination']) -and -not $Parameters['force']) {
-                throw "The destination[$($Parameters['destination'])] already exist, please use 'force' to delete it.";
+                throw "The destination[$($Parameters['destination'])] already exist, please use 'force' to delete it";
             }
             $Parameters['paths'] = $Parameters['paths'] 
                 | Select-Object -Property @{Name="FullName";Expression={$(Resolve-Path -LiteralPath $_).Path};} 
