@@ -7,7 +7,7 @@ param (
     $Version = $(throw "$($MyInvocation.MyCommand.Name) -> You need to send the version of the script block")
 );
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
-Write-Output -InputObject @{
+@{
     "1.0.0" = {
         [CmdletBinding()]
         param (
@@ -33,4 +33,4 @@ Write-Output -InputObject @{
             };
         }
     };
-}[$Version].ToString();
+}[$Version] | Write-Output;
