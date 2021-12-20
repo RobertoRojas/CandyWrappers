@@ -457,7 +457,10 @@ $Configuration = @{
     };
     Modules = @{
         Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("modules",$SelectedVersion,"Modules.ps1");
-    }
+    };
+    Selector = @{
+        Script = Join-Path -Path $PSScriptRoot -ChildPath ".tools" -AdditionalChildPath @("tasks","selector","selector.ps1");
+    };
 }
 Write-Line -Message "Candy Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
 Write-Message;
@@ -639,7 +642,15 @@ if($CandySystem -eq "Execute") {
             Write-Message;
             Write-VerboseMessage -Message "index: $i";
             Write-VerboseMessage -Message "NoNewScope: $NoNewScope";
-            if($null -eq $TaskExecution) {
+            if($Task['version']) {
+                try {
+                    $TaskExecution = . $Configuration['Selector']['Script'] -Wrapper $Task['task'] -Version $Task['version'];
+                } catch {
+                    $ExitCode = 2;
+                    Write-ErrorMessage -Message $_.Exception.Message;
+                    break;
+                }
+            } elseif($null -eq $TaskExecution) {
                 $ExitCode = 2;
                 Write-ErrorMessage -Message "The task[$($Task['task'])] doesn't exist in the selected version[$SelectedVersion]";
                 break;

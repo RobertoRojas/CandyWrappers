@@ -26,6 +26,10 @@
                     "buffer": {
                         "type": "boolean"
                     },
+                    "version": {
+                        "type": "string",
+                        "pattern": "^\\d+[.]\\d+[.]\\d+$"
+                    },
                     "nonewscope": {
                         "type": "boolean"
                     },
