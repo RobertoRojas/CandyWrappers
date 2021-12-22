@@ -12,4 +12,3 @@ if(-not $ScriptPath) {
     throw "The wrapper[$Wrapper] doesn't exist";
 }
 . $ScriptPath -Version $Version | Write-Output;
-
