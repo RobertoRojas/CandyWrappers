@@ -9,7 +9,7 @@ param (
 $ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
-    "1.0.0" = {
+    '1.0.0' = {
         [CmdletBinding()]
         param (
             [hashtable]
@@ -22,8 +22,8 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
         Write-Message -Message $Parameters['message'] -ForegroundColor $Parameters['foregroundcolor'] -BackgroundColor $Parameters['backgroundcolor'] `
             -Stream $Parameters['stream'] -NoDisplay:$Parameters['silent'];
         Write-Output -InputObject @{
-            Message = $Parameters['message'];
-            Success = $true;
+            'Message' = $Parameters['message'];
+            'Success' = $true;
         };
     };
 }[$Version] | Write-Output;

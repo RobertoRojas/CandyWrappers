@@ -9,7 +9,7 @@ param (
 $ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
-    "1.0.0" = {
+    '1.0.0' = {
         [CmdletBinding()]
         param (
             [hashtable]
@@ -18,7 +18,7 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
         $Parameters['force'] = $Parameters['force'] ?? $false;
         $Parameters['compression'] = $Parameters['compression'] ?? "Optimal";
         $Output = @{
-            Paths = $Parameters['paths'];
+            'Paths' = $Parameters['paths'];
         };
         try {
             if((Test-Path -LiteralPath $Parameters['destination']) -and -not $Parameters['force']) {

@@ -9,7 +9,7 @@ param (
 $ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
-    "1.0.0" = {
+    '1.0.0' = {
         [CmdletBinding()]
         param (
             [hashtable]
@@ -18,8 +18,8 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
         $JSON = $Buffers[$Parameters['key']] | ConvertTo-Json -Depth 10;
         Write-Message -Message $JSON -ForegroundColor White -BackgroundColor Magenta;
         Write-Output -InputObject @{
-            JSON = $JSON;
-            Success = $true;
+            'JSON' = $JSON;
+            'Success' = $true;
         }
     };
 }[$Version] | Write-Output;

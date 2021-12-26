@@ -23,7 +23,9 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             Write-Line -Message "Not match" -Line " " -Corner " " -MessageForegroundColor Red;
         }
         Write-Output -InputObject @{
-            Success = $Success;
+            'Path' = $Parameters['path'];
+            'Exist' = $Parameters['exist'];
+            'Success' = $Success;
         };
     };
 }[$Version] | Write-Output;

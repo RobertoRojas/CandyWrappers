@@ -15,17 +15,16 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             [hashtable]
             $Parameters = $(throw "Parameters need to be defined")
         );
-        $Program = $Parameters['program'];
-        Write-VerboseMessage -Message "Program: $Program";
-        $Result = Test-Program -Program $Program;
-        if($Result) {
+        Write-VerboseMessage -Message "Program: $Parameters['program']";
+        $Success = Test-Program -Program $Parameters['program'];
+        if($Success) {
             Write-Line -Message "Found" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Green -LineBackgroundColor Green;
         } else {
             Write-Line -Message "Not found" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Red -LineBackgroundColor Red;
         }
         Write-Output -InputObject @{
-            Result = $Result;
-            Success = $Result;
+            'Program' = $Parameters['program'];
+            'Success' = $Success;
         };
     };
 }[$Version] | Write-Output;

@@ -9,14 +9,14 @@ param (
 $ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
-    "1.0.0" = {
+    '1.0.0' = {
         [CmdletBinding()]
         param (
             [hashtable]
             $Parameters = $(throw "Parameters need to be defined")
         );
         $Output = @{
-            URI = $Parameters['uri'];
+            'URI' = $Parameters['uri'];
         };
         try {
             if(Test-Path -LiteralPath $Parameters['file']) {

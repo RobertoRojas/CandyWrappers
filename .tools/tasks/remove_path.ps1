@@ -9,25 +9,24 @@ param (
 $ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
-    "1.0.0" = {
+    '1.0.0' = {
         [CmdletBinding()]
         param (
             [hashtable]
             $Parameters = $(throw "Parameters need to be defined")
         );
+        $Output = @{};
         try {
             if(Test-Path -LiteralPath $Parameters['path']) {
                 Remove-Item -Path $Parameters['path'] -Recurse -Force;
             }
-            $Success = $true;
+            $Output['Success'] = $true;
             Write-Line -Message "Path deleted" -Line " " -Corner " " -MessageForegroundColor Green;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Success = $false;
+            $Output['Success'] = $false;
         } finally {
-            Write-Output -InputObject @{
-                Success = $Success;
-            };
+            Write-Output -InputObject $Output;
         }
     };
 }[$Version] | Write-Output;

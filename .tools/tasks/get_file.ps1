@@ -9,7 +9,7 @@ param (
 $ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
-    "1.0.0" = {
+    '1.0.0' = {
         [CmdletBinding()]
         param (
             [hashtable]
@@ -30,10 +30,10 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
                 Encoding = $Parameters['encoding'];
             };
             if($Parameters['tail']) {
-                $Arguments.Add('Tail', $Parameters['tail']);
+                $Arguments['Tail'] = $Parameters['tail'];
             }
             if($Parameters['totalcount']) {
-                $Arguments.Add('TotalCount', $Parameters['totalcount']);
+                $Arguments['TotalCount'] = $Parameters['totalcount'];
             }
             $Content = Get-Content @Arguments | Where-Object -FilterScript {$_ -like $Parameters['like']};
             if($Parameters['displaycontent']) {
@@ -44,11 +44,11 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
                 }
             }
             Write-Line -Message "Content obtained" -Line " " -Corner " " -MessageForegroundColor Green;
-            $Output.Add('Content', $Content);
-            $Output.Add('Success', $true);
+            $Output['Content'] = $Content;
+            $Output['Success'] = $true;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Output.Add('Success', $false);
+            $Output['Success'] = $false;
         } finally {
             Write-Output -InputObject $Output;
         }

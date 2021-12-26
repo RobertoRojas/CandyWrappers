@@ -9,23 +9,22 @@ param (
 $ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
-    "1.0.0" = {
+    '1.0.0' = {
         [CmdletBinding()]
         param (
             [hashtable]
             $Parameters = $(throw "Parameters need to be defined")
         );
         $ScriptBlock = [scriptblock]::Create($($Parameters['commands'] -join ";"));
+        $Output = @{};
         try {
             Invoke-Command -NoNewScope:$Parameters['nonewscope'] -ScriptBlock $ScriptBlock;
-            $Success = $true;
+            $Output['Success'] = $true;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Success = $false;
+            $Output['Success'] = $false;
         } finally {
-            Write-Output -InputObject @{
-                Success = $Success;
-            };
+            Write-Output -InputObject $Output;
         }
     };
 }[$Version] | Write-Output;

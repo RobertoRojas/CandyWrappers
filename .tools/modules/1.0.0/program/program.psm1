@@ -73,8 +73,8 @@ function Invoke-Program{
         }
     }
     Write-Output -InputObject @{
-        Output = $OutputString.ToString();
-        Error = $ErrorString.ToString();
-        ExitCode = $Process.ExitCode;
+        'Output' = $OutputString.ToString();
+        'Error' = $ErrorString.ToString();
+        'ExitCode' = $Process.ExitCode;
     };
 }

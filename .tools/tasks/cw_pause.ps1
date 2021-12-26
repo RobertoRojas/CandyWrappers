@@ -9,7 +9,7 @@ param (
 $ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
-    "1.0.0" = {
+    '1.0.0' = {
         [CmdletBinding()]
         param (
             [hashtable]
@@ -36,7 +36,7 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             } while ($Elapsed -gt 0);
         }
         Write-Output -InputObject @{
-            Success = $true;
+            'Success' = $true;
         };
     };
 }[$Version] | Write-Output;

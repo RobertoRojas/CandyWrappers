@@ -9,7 +9,7 @@ param (
 $ErrorActionPreference = "stop";
 Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Name)";
 @{
-    "1.0.0" = {
+    '1.0.0' = {
         [CmdletBinding()]
         param (
             [hashtable]
@@ -19,24 +19,21 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
         $Arguments = $Parameters['arguments'] ?? @();
         $Inputs = $Parameters['inputs'] ?? @();
         $WorkingDirectory = $Parameters['workingdirectory'] ?? $(Get-Location).Path;
+        $Output = @{};
         try {
             $Result = Invoke-Program -Program $Program -Arguments $Arguments -Inputs $Inputs -WorkingDirectory $WorkingDirectory;
-            $InputObject = @{
-                Output = $Result['Output'];
-                Error = $Result['Error'];
-                ExitCode = $Result['ExitCode'];
-                Success = $($Result['ExitCode'] -eq 0);
-            };
+            $Output['Output'] = $Result['Output'];
+            $Output['Error'] = $Result['Error'];
+            $Output['ExitCode'] = $Result['ExitCode'];
+            $Output['Success'] = $($Result['ExitCode'] -eq 0);
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $InputObject = @{
-                Output = "";
-                Error = "";
-                ExitCode = -1;
-                Success = $false;
-            };
+            $Output['Output'] = "";
+            $Output['Error'] = "";
+            $Output['ExitCode'] = -1;
+            $Output['Success'] = $false;
         } finally {
-            Write-Output -InputObject $InputObject;
+            Write-Output -InputObject $Output;
         }
     };
 }[$Version] | Write-Output;
