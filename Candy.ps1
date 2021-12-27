@@ -752,48 +752,6 @@ $Output['exitcode'] = -1;
 $Output['history'] = @();
 $Output['version'] = $CandyVersion;
 $Output['selected'] = $SelectedVersion;
-
-
-<#:working_loop do {
-    Write-Host "XXXX";
-    $Elapsed = 0;
-    $Paused = $false;
-    while($Elapsed -lt $ControlObject['delay']) {
-        if(Test-Path -LiteralPath $ControlObject['Commands']['Break']) {
-            Remove-Item -LiteralPath $ControlObject['Commands']['Break'] -Force | Out-Null;
-            break working_loop;
-        }
-        if((Test-Path -LiteralPath $ControlObject['Commands']['Note']) -and -not $NoInteractive) {
-            $Note = Read-Host -Prompt "Write the note";
-            Write-Note -Type control_pause -Note $Note;
-            Remove-Item -LiteralPath $ControlObject['Commands']['Note'] -Force | Out-Null;
-        } elseif($ControlObject['manual'] -and $NoInteractive) {
-            Write-VerboseMessage -Message "Cannot execute a pause in a non interactive context";
-        }
-        if(-not (Test-Path -LiteralPath $ControlObject['Commands']['Pause'])) {
-            $Paused = $false;
-            $Elapsed++;
-            if($Elapsed % 1000 -eq 0) {
-                Write-VerboseMessage -Message "Waited $Elapsed of $($ControlObject['delay'])";
-            }
-        } else {
-            if(-not $Paused) {
-                Write-VerboseMessage -Message "Execution paused, delete $($ControlObject['Commands']['Pause']) to continue";
-                $Paused = $true;
-            }
-        }
-        Start-Sleep -Milliseconds 1;
-    }
-    Write-VerboseMessage -Message "Waited $Elapsed of $($ControlObject['delay'])";
-    if($ControlObject['manual'] -and -not $NoInteractive) {
-        $Note = Read-Host -Prompt "Press enter to continue or write a note";
-        Write-Note -Type control_break -Note $Note;
-    } elseif($ControlObject['manual'] -and $NoInteractive) {
-        Write-VerboseMessage -Message "Cannot execute a manual wait in a non interactive context";
-    }
-} while($(Invoke-Command -ScriptBlock $ControlScriptBlock -ArgumentList $ControlObject) -and $($Output['exitcode'] -eq 0 -or $ControlObject['force']));#>
-
-
 :working_loop do {
     if($CandySystem -eq "Execute") {
         try {
@@ -938,7 +896,7 @@ $Output['selected'] = $SelectedVersion;
                     }
                 }
                 $AllIgnored = $false;
-                $NoNewScope = $Task['nonewscope'] ?? $false -or @("buffer_create","buffer_show","cw_break") -contains $Task['task'];
+                $NoNewScope = $Task['nonewscope'] ?? $false -or @("buffer_create","buffer_show","cw_break", "cw_pause") -contains $Task['task'];
                 Write-Message;
                 Write-Line -Message "$($Task['task'])[$($Task['id'])]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
                 Write-Message;
@@ -1235,5 +1193,5 @@ $Output['selected'] = $SelectedVersion;
     } elseif($ControlObject['manual'] -and $NoInteractive) {
         Write-VerboseMessage -Message "Cannot execute a manual wait in a non interactive context";
     }
-} while($(Invoke-Command -ScriptBlock $ControlScriptBlock -ArgumentList $ControlObject) -and $($Output['exitcode'] -eq 0 -or $ControlObject['force']));
+} while($($Output['exitcode'] -eq 0 -or $ControlObject['force'] -eq $true) -and $(Invoke-Command -ScriptBlock $ControlScriptBlock -ArgumentList $ControlObject));
 Exit-CandyWrappers;

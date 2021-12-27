@@ -15,6 +15,7 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             [hashtable]
             $Parameters = $(throw "Parameters need to be defined")
         );
+        $Parameters['milliseconds'] = $Parameters['milliseconds'] ?? 0;
         $Total = $Elapsed = $Parameters['milliseconds'] / 1000;
         Write-VerboseMessage -Message "Total seconds to wait: $Total";
         if($Total -eq 0) {
@@ -23,7 +24,8 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
                     -MessageForegroundColor Black -MessageBackgroundColor DarkGray `
                     -LineBackgroundColor DarkGray;
             } else {
-                Read-Host -Prompt "Press enter to continue: " | Out-Null;
+                $Note = Read-Host -Prompt "Press enter to continue or write a note";
+                Write-Note -Type wrapper_pause -Note $Note;
             }
         } else {
             do {
