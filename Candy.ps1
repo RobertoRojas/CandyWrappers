@@ -16,6 +16,9 @@ param(
     [ValidateNotNull()]
     [string[]]
     $Exclude = @(),
+    [ValidateNotNull()]
+    [string[]]
+    $Macro = $null,
     [Alias(
         "System"
     )]
@@ -481,6 +484,14 @@ function Exit-CandyWrappers {
         Out-File -FilePath $LogFile -Encoding utf8 -InputObject $(Format-Output -Type JSON -Output $Output);
     }
     Write-Message;
+    Write-Line -Message "Result of execution" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+    Write-Message;
+    if($Output['exitcode'] -eq 0) {
+        Write-Line -Message "Success" -Line " " -Corner " " -MessageForegroundColor Green;
+    } else {
+        Write-Line -Message "Failure" -Line " " -Corner " " -MessageForegroundColor Red;
+    }
+    Write-Message;
     Write-Line -LineForegroundColor DarkCyan;
     Write-Output -InputObject $(Format-Output -Type $Type -Output $Output);
     if(-not $NoExit) {
@@ -513,6 +524,40 @@ function Write-Note {
         'note' = ConvertFrom-Buffer -Value $Note;
     };
 }
+<#
+    $Wrappers = $null,
+    $Include = @(),
+    $Exclude = @(),
+    $CandySystem = "Execute",
+    $Control = $null,
+    $Type = "Null",
+    $OnError = "break",
+    $Major = 1,
+    $Minor = 0,
+    $Build = 0,
+    [switch]
+    $Compress,
+    [switch]
+    $JoinStreams,
+    [switch]
+    $KeepEvents,
+    [switch]
+    $KeepModules,
+    [switch]
+    $Log,
+    [switch]
+    $NoBreak,
+    [switch]
+    $NoColor,
+    [switch]
+    $NoExit,
+    [switch]
+    $NoInteractive,
+    [switch]
+    $NoLogFile,
+    [switch]
+    $Silent
+#>
 $Output = @{};
 $SelectedVersion = "$Major.$Minor.$Build";
 $Configuration = @{
@@ -629,6 +674,8 @@ try {
                 $ControlObject = $(throw "$($Invocation.MyCommand.Name) : The you need to send the ControlObject")
             );
             $ControlObject['counter'] = $ControlObject['counter'] + 1;
+            Write-Message;
+            Write-Line -Message "Repeat $($ControlObject['counter']) of $($ControlObject['repeat'])" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Magenta -LineBackgroundColor Magenta;
             Write-Output -InputObject $($ControlObject['counter'] -lt $ControlObject['repeat']);
         };
     } elseif($ControlObject['mode'] -eq "infinite") {
@@ -638,6 +685,8 @@ try {
                 [hashtable]
                 $ControlObject = $(throw "$($Invocation.MyCommand.Name) : The you need to send the ControlObject")
             );
+            Write-Message;
+            Write-Line -Message "Repeat again" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Magenta -LineBackgroundColor Magenta;
             Write-Output -InputObject $true;
         }
     } elseif ($ControlObject['mode'] -eq "file_system_watcher") {
@@ -713,7 +762,8 @@ try {
                 [hashtable]
                 $ControlObject = $(throw "$($Invocation.MyCommand.Name) : The you need to send the ControlObject")
             );
-            Write-VerboseMessage -Message "Waiting for file system watcher event";
+            Write-Message;
+            Write-Line -Message "Waiting for event" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Magenta -LineBackgroundColor Magenta;
             $Waiting = $true;
             $EventTrigger = $true;
             while($Waiting) {
@@ -739,6 +789,8 @@ try {
                 [hashtable]
                 $ControlObject = $(throw "$($Invocation.MyCommand.Name) : The you need to send the ControlObject")
             );
+            Write-Message;
+            Write-Line -Message "Done" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Magenta -LineBackgroundColor Magenta;
             Write-Output -InputObject $false;
         }
     }
@@ -1160,17 +1212,23 @@ $Output['selected'] = $SelectedVersion;
     }
     $Elapsed = 0;
     $Paused = $false;
+    Write-Message;
+    Write-Line -Message "Control[Delay]" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+    Write-Message;
+    Write-Line -Message "Wait for $($ControlObject['delay']) milliseconds" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Magenta -LineBackgroundColor Magenta;
     while($Elapsed -lt $ControlObject['delay']) {
         if(Test-Path -LiteralPath $ControlObject['Commands']['Break']) {
             Remove-Item -LiteralPath $ControlObject['Commands']['Break'] -Force | Out-Null;
             break working_loop;
         }
-        if((Test-Path -LiteralPath $ControlObject['Commands']['Note']) -and -not $NoInteractive) {
-            $Note = Read-Host -Prompt "Write the note";
-            Write-Note -Type control_pause -Note $Note;
-            Remove-Item -LiteralPath $ControlObject['Commands']['Note'] -Force | Out-Null;
-        } elseif($ControlObject['manual'] -and $NoInteractive) {
-            Write-VerboseMessage -Message "Cannot execute a pause in a non interactive context";
+        if(Test-Path -LiteralPath $ControlObject['Commands']['Note']) {
+            if(-not $NoInteractive) {
+                $Note = Read-Host -Prompt "Press enter to continue or write a note";
+                Write-Note -Type control_pause -Note $Note;
+                Remove-Item -LiteralPath $ControlObject['Commands']['Note'] -Force | Out-Null;
+            } else {
+                Write-Line -Message "Cannot execute a note in a non interactive context" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Yellow -LineBackgroundColor Yellow;
+            }
         }
         if(-not (Test-Path -LiteralPath $ControlObject['Commands']['Pause'])) {
             $Paused = $false;
@@ -1179,19 +1237,31 @@ $Output['selected'] = $SelectedVersion;
                 Write-VerboseMessage -Message "Waited $Elapsed of $($ControlObject['delay'])";
             }
         } else {
-            if(-not $Paused) {
-                Write-VerboseMessage -Message "Execution paused, delete $($ControlObject['Commands']['Pause']) to continue";
-                $Paused = $true;
+            if(-not $NoInteractive) {
+                if(-not $Paused) {
+                    $Paused = $true;
+                    Write-Line -Message "Execution paused, delete [$($ControlObject['Commands']['Pause'])] to continue" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Magenta -LineBackgroundColor Magenta;
+                } 
+            } else {
+                Remove-Item -LiteralPath $ControlObject['Commands']['Pause'] -Force | Out-Null;
+                Write-Line -Message "Cannot execute a pause in a non interactive context" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Yellow -LineBackgroundColor Yellow;
             }
         }
         Start-Sleep -Milliseconds 1;
     }
     Write-VerboseMessage -Message "Waited $Elapsed of $($ControlObject['delay'])";
-    if($ControlObject['manual'] -and -not $NoInteractive) {
-        $Note = Read-Host -Prompt "Press enter to continue or write a note";
-        Write-Note -Type control_break -Note $Note;
-    } elseif($ControlObject['manual'] -and $NoInteractive) {
-        Write-VerboseMessage -Message "Cannot execute a manual wait in a non interactive context";
+    if($ControlObject['manual']) {
+        Write-Message;
+        Write-Line -Message "Control[Manual]" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
+        Write-Message;
+        if(-not $NoInteractive) {
+            $Note = Read-Host -Prompt "Press enter to continue or write a note";
+            Write-Note -Type control_break -Note $Note;
+        } else {
+            Write-Line -Message "Cannot execute a manual wait in a non interactive context" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Yellow -LineBackgroundColor Yellow;
+        }
     }
+    Write-Message;
+    Write-Line -Message "Control[$($ControlObject['mode'])]" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
 } while($($Output['exitcode'] -eq 0 -or $ControlObject['force'] -eq $true) -and $(Invoke-Command -ScriptBlock $ControlScriptBlock -ArgumentList $ControlObject));
 Exit-CandyWrappers;

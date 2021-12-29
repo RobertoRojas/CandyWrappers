@@ -1,0 +1,132 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Macro schema",
+    "description": "Definitions of the macro in CandyWrappers.",
+    "type": "object",
+    "properties": {
+        "wrappers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "oneOf": [
+                    {
+                        "$ref": "#/definitions/path"
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "path"
+                        ],
+                        "properties": {
+                            "path": {
+                                "$ref": "#/definitions/path"
+                            },
+                            "include": {
+                                "$ref": "#/definitions/idsearch"
+                            },
+                            "exclude": {
+                                "$ref": "#/definitions/idsearch"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "include": {
+            "$ref": "#/definitions/idsearch"
+        },
+        "exclude": {
+            "$ref": "#/definitions/idsearch"
+        },
+        "candysystem": {
+            "type": "string",
+            "enum": [
+                "Execute",
+                "Repositories",
+                "Validate",
+                "Version"
+            ]
+        },
+        "control": {
+            "$ref": "#/definitions/path"
+        },
+        "type": {
+            "type": "string",
+            "enum": [
+                "JSON",
+                "PSCustomObject",
+                "Hashtable",
+                "Null"
+            ]
+        },
+        "onerror": {
+            "type": "string",
+            "enum": [
+                "break",
+                "ignore",
+                "silent_ignore"
+            ]
+        },
+        "major": {
+            "$ref": "#/definitions/positivenumber"
+        },
+        "minor": {
+            "$ref": "#/definitions/positivenumber"
+        },
+        "build": {
+            "$ref": "#/definitions/positivenumber"
+        },
+        "compress": {
+            "type": "boolean"
+        },
+        "joinstreams": {
+            "type": "boolean"
+        },
+        "keepevents": {
+            "type": "boolean"
+        },
+        "keepmodules": {
+            "type": "boolean"
+        },
+        "log": {
+            "type": "boolean"
+        },
+        "nobreak": {
+            "type": "boolean"
+        },
+        "nocolor": {
+            "type": "boolean"
+        },
+        "noexit": {
+            "type": "boolean"
+        },
+        "nointeractive": {
+            "type": "boolean"
+        },
+        "nologfile": {
+            "type": "boolean"
+        },
+        "silent": {
+            "type": "boolean"
+        }
+    },
+    "definitions": {
+        "idsearch": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "string",
+                "pattern": "^(?!cw\\/.+$)[a-zA-Z0-9_\\-\\/\\\\*]+$"
+            }
+        },
+        "positivenumber": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+        },
+        "path": {
+            "type": "string",
+            "pattern": "^([a-zA-Z][:](\\|\/))?(([^<>:\"|?*])*)+$"
+        }
+    }
+}
