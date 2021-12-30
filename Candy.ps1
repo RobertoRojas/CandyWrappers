@@ -16,9 +16,9 @@ param(
     [ValidateNotNull()]
     [string[]]
     $Exclude = @(),
-    [ValidateNotNull()]
-    [string[]]
-    $Macro = $null,
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $Macro = "",
     [Alias(
         "System"
     )]
@@ -73,6 +73,8 @@ param(
     [switch]
     $KeepModules,
     [switch]
+    $NoLastExitCode,
+    [switch]
     $Log,
     [switch]
     $NoBreak,
@@ -95,6 +97,7 @@ param(
 $ErrorActionPreference = "stop";
 $Invocation = $MyInvocation;
 $CandyVersion = "1.0.0";
+$SelectedVersion = "$Major.$Minor.$Build";
 function Write-Line {
     [CmdletBinding()]
     param(
@@ -471,6 +474,15 @@ function Exit-CandyWrappers {
             Write-Line -Message $Identifier -Line " " -Corner " " -MessageForegroundColor Magenta;
         }
     }
+    $Output['exitcode'] = $Output['exitcode'] ?? 1;
+    if($NoLastExitCode) {
+        foreach ($Execution in $Output['history']) {
+            if($Execution['exitcode'] -ne 0) {
+                $Output['exitcode'] = 1;
+                break;
+            }
+        }
+    }
     if($Log -and -not $NoLogFile) {
         $LogDirectory = "./.candy/logs";
         $LogFile = "$LogDirectory/$($(Get-Date).ToFileTime())";
@@ -495,7 +507,7 @@ function Exit-CandyWrappers {
     Write-Line -LineForegroundColor DarkCyan;
     Write-Output -InputObject $(Format-Output -Type $Type -Output $Output);
     if(-not $NoExit) {
-        exit $Output['exitcode'];
+        exit $ExitCode;
     }
 }
 function Write-Note {
@@ -524,42 +536,6 @@ function Write-Note {
         'note' = ConvertFrom-Buffer -Value $Note;
     };
 }
-<#
-    $Wrappers = $null,
-    $Include = @(),
-    $Exclude = @(),
-    $CandySystem = "Execute",
-    $Control = $null,
-    $Type = "Null",
-    $OnError = "break",
-    $Major = 1,
-    $Minor = 0,
-    $Build = 0,
-    [switch]
-    $Compress,
-    [switch]
-    $JoinStreams,
-    [switch]
-    $KeepEvents,
-    [switch]
-    $KeepModules,
-    [switch]
-    $Log,
-    [switch]
-    $NoBreak,
-    [switch]
-    $NoColor,
-    [switch]
-    $NoExit,
-    [switch]
-    $NoInteractive,
-    [switch]
-    $NoLogFile,
-    [switch]
-    $Silent
-#>
-$Output = @{};
-$SelectedVersion = "$Major.$Minor.$Build";
 $Configuration = @{
     'Wrapper' = @{
         'Execution' = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
@@ -583,7 +559,13 @@ $Configuration = @{
         'CommandsPath' = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("control","commands");
         'Default' = '{"mode":"once"}';
     };
+    'Macro' = @{
+        'Execution' = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("macro",$Macro);
+        'Program' = Join-Path -Path $PSScriptRoot -ChildPath ".candy" -AdditionalChildPath @("macro",$Macro);
+        'Schema' = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("macro","macro.schema.json");
+    };
 }
+$Output = @{};
 Write-Line -Message "Candy Wrappers" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
 Write-Message;
 Write-Message -Message "Candy     : " -NoNewLine -ForegroundColor DarkCyan;
@@ -597,21 +579,61 @@ Write-Message -Message $PSScriptRoot -ForegroundColor Cyan;
 Write-Message;
 Write-Line -Message "Parameters" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
 Write-Message;
+try {
+    $Parameters = @{};
+    foreach($Item in $Invocation.BoundParameters.GetEnumerator()) {
+        $Parameters[$Item.Key] = @{
+            'value' = $Item.Value;
+            'type' = "parameter";
+        };
+    }
+    if($Macro) {
+        if(Test-Path -LiteralPath $Macro) {
+            $Macro = Get-Content -Raw -LiteralPath $Macro;
+        } elseif(Test-Path -LiteralPath $Configuration['Macro']['Execution']) {
+            $Macro = Get-Content -Raw -LiteralPath $Configuration['Macro']['Execution'];
+        } elseif(Test-Path -LiteralPath $Configuration['Macro']['Program']) {
+            $Macro = Get-Content -Raw -LiteralPath $Configuration['Macro']['Program'];
+        } else {
+            throw "$($Invocation.MyCommand.Name) : Cannot find any macro with that path or name[$Macro]";
+        }
+        try {
+            Test-Json -Json $Macro -SchemaFile $Configuration['Macro']['Schema'] | Out-Null;
+        } catch {
+            $ErrorDetails = $_.ErrorDetails.Message;
+            if($ErrorDetails) {
+                Write-ErrorMessage -Message "$ErrorDetails";
+            }
+            throw $_.Exception.Message;
+        }
+        foreach($Item in $(ConvertFrom-Json -AsHashtable -InputObject $Macro).GetEnumerator()) {
+            if($Parameters.Contains($Item.Key)) {
+                continue;
+            }
+            $Var = Get-Variable -Name $Item.Key;
+            $Var.Value = $Item.Value;
+            $Parameters[$Item.Key] = @{
+                'value' = $Var.Value;
+                'type' = "macro";
+            };
+        }
+    }
+    foreach($Key in $Parameters.Keys) {
+        Write-Line -Message "-$($Key) $(ConvertTo-Json -Compress -InputObject $Parameters[$Key]['value'])" -Line " " `
+            -Corner " " -MessageForegroundColor @{$true="Blue";$false="Magenta";}[$Parameters[$Key]['type'] -eq "macro"];
+    }
+} catch {
+    Write-ErrorMessage -Message $_.Exception.Message;
+    $Output['exitcode'] = 1;
+    Exit-CandyWrappers;
+}
 if($Invocation.BoundParameters.Keys.Count -gt 0) {
     if($Log) {
         $Output.Add('parameters', @());
     }
-    foreach($Item in $Invocation.BoundParameters.GetEnumerator()) {
-        if($Log) {
-            $Output['parameters'] += @{
-                'Key' = $($Item.Key).ToString();
-                'Value' = $($Item.Value).ToString();
-            };
-        }
-        Write-Line -Message "-$($Item.Key) $($Item.Value)" -Line " " -Corner " " -MessageForegroundColor Magenta;
-    }
 } else {
     Write-Line -Message "Nothing to show" -Line " " -Corner " " -MessageForegroundColor DarkGray;
+        Write-Line -Message "-$($Item.Key) $($Item.Value)" -Line " " -Corner " " -MessageForegroundColor Magenta;
 }
 Write-Message;
 try {
@@ -675,7 +697,7 @@ try {
             );
             $ControlObject['counter'] = $ControlObject['counter'] + 1;
             Write-Message;
-            Write-Line -Message "Repeat $($ControlObject['counter']) of $($ControlObject['repeat'])" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Magenta -LineBackgroundColor Magenta;
+            Write-Line -Message "Repeated $($ControlObject['counter']) of $($ControlObject['repeat'])" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Magenta -LineBackgroundColor Magenta;
             Write-Output -InputObject $($ControlObject['counter'] -lt $ControlObject['repeat']);
         };
     } elseif($ControlObject['mode'] -eq "infinite") {
@@ -800,7 +822,7 @@ try {
     $Output['exitcode'] = 1;
     Exit-CandyWrappers;
 }
-$Output['exitcode'] = -1;
+$Working = $true;
 $Output['history'] = @();
 $Output['version'] = $CandyVersion;
 $Output['selected'] = $SelectedVersion;
@@ -1077,7 +1099,7 @@ $Output['selected'] = $SelectedVersion;
                 } elseif (Test-Path -LiteralPath $Configuration['Wrapper']['Program']) {
                     $Wrappers = @($Configuration['Wrapper']['Program']);
                 } else {
-                throw "$($Invocation.MyCommand.Name) : Cannot find any wrapper to execute";
+                    throw "$($Invocation.MyCommand.Name) : Cannot find any wrapper to execute";
                 }
             }
             for ($i = 0; $i -lt $Wrappers.Count; $i++) {
@@ -1263,5 +1285,10 @@ $Output['selected'] = $SelectedVersion;
     }
     Write-Message;
     Write-Line -Message "Control[$($ControlObject['mode'])]" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
-} while($($Output['exitcode'] -eq 0 -or $ControlObject['force'] -eq $true) -and $(Invoke-Command -ScriptBlock $ControlScriptBlock -ArgumentList $ControlObject));
+    $Working = $Output['exitcode'] -eq 0 -or $ControlObject['force'] -eq $true;
+    if(-not $Working) {
+        Write-Message;
+        Write-Line -Message "Execution failure" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Red -LineBackgroundColor Red;
+    }
+} while($Working -and $(Invoke-Command -ScriptBlock $ControlScriptBlock -ArgumentList $ControlObject));
 Exit-CandyWrappers;
