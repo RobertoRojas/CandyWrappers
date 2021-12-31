@@ -1070,12 +1070,19 @@ try {
                 Write-ErrorMessage -Message $_.Exception.Message;
                 $Output['exitcode'] = 1;
             } finally {
-                $Output['history'] += @{
+                $ExecutionHistory = @{
                     'exitcode' = $Output['exitcode'];
-                    'tasks' = $Output['tasks'];
-                    'modules' = $Output['modules'];
-                    'execution' = $Output['execution'];
                 };
+                if($Output['tasks']) {
+                    $ExecutionHistory['tasks'] = $Output['tasks'];
+                }
+                if($Output['modules']) {
+                    $ExecutionHistory['modules'] = $Output['modules'];
+                }
+                if($Output['execution']) {
+                    $ExecutionHistory['execution'] = $Output['execution'];
+                }
+                $Output['history'] += $ExecutionHistory;
                 if($null -ne $ModulesList -and -not $KeepModules) {
                     Write-Message;
                     Write-Line -Message "Remove modules" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
