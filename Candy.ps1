@@ -629,6 +629,7 @@ try {
     } else {
         Write-Line -Message "Nothing to show" -Line " " -Corner " " -MessageForegroundColor DarkGray;
     }
+    $Output['parameters'] = $Parameters;
     $Output['ctrl-c'] = $false;
 } catch {
     Write-ErrorMessage -Message $_.Exception.Message;
