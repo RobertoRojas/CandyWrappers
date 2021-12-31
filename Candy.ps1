@@ -451,6 +451,9 @@ function ConvertFrom-Buffer {
                 foreach($Item in $($_ -replace "{|}" -split "[.]")) {
                     $New = $New[$Item];
                 }
+                if($null -eq $New) {
+                    $New = $_;
+                }
                 [void]$Groups.Add(@{
                     'Old' = $_;
                     'New' = [System.String]$New;
