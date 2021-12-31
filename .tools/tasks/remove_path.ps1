@@ -15,18 +15,18 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             [hashtable]
             $Parameters = $(throw "Parameters need to be defined")
         );
-        $Output = @{};
+        $OutputTask = @{};
         try {
             if(Test-Path -LiteralPath $Parameters['path']) {
                 Remove-Item -Path $Parameters['path'] -Recurse -Force;
             }
-            $Output['Success'] = $true;
+            $OutputTask['Success'] = $true;
             Write-Line -Message "Path deleted" -Line " " -Corner " " -MessageForegroundColor Green;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Output['Success'] = $false;
+            $OutputTask['Success'] = $false;
         } finally {
-            Write-Output -InputObject $Output;
+            Write-Output -InputObject $OutputTask;
         }
     };
 }[$Version] | Write-Output;

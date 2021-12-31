@@ -18,7 +18,7 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
         $Parameters['content'] = $Parameters['content'] ?? @();
         $Parameters['encoding'] = $Parameters['encoding'] ?? "ascii";
         $Parameters['nonewline'] = $Parameters['nonewline'] ?? $false;
-        $Output = @{
+        $OutputTask = @{
             'Content' = $Parameters['content'];
             'Encoding' = $Parameters['encoding'];
             'NoNewLine' = $Parameters['nonewline'];
@@ -28,13 +28,13 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
                 Remove-Item -Recurse -Force -LiteralPath $Parameters['path'];
             }
             Out-File -LiteralPath $Parameters['path'] -InputObject $Parameters['content'] -Encoding $Parameters['encoding'] -Append -NoNewline:$Parameters['nonewline'];
-            $Output['Success'] = $true;
+            $OutputTask['Success'] = $true;
             Write-Line -Message "Content added" -Line " " -Corner " " -MessageForegroundColor Green;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Output['Success'] = $false;
+            $OutputTask['Success'] = $false;
         } finally {
-            Write-Output -InputObject $Output;
+            Write-Output -InputObject $OutputTask;
         }
     };
 }[$Version] | Write-Output;

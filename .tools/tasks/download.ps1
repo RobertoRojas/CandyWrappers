@@ -15,7 +15,7 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             [hashtable]
             $Parameters = $(throw "Parameters need to be defined")
         );
-        $Output = @{
+        $OutputTask = @{
             'URI' = $Parameters['uri'];
         };
         try {
@@ -28,14 +28,14 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             }
             $Response = Invoke-WebRequest -Uri $Parameters['uri'] -OutFile $Parameters['file'] -PassThru;
             Write-Line -Message "File downloaded successfully" -Line " " -Corner " " -MessageForegroundColor Green;
-            $Output['Response'] = $Response;
-            $Output['File'] = $(Resolve-Path -LiteralPath $Parameters['file']).Path;
-            $Output['Success'] = $true;
+            $OutputTask['Response'] = $Response;
+            $OutputTask['File'] = $(Resolve-Path -LiteralPath $Parameters['file']).Path;
+            $OutputTask['Success'] = $true;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Output['Success'] = $false;
+            $OutputTask['Success'] = $false;
         } finally {
-            Write-Output -InputObject $Output;
+            Write-Output -InputObject $OutputTask;
         }
     };
 }[$Version] | Write-Output;

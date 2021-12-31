@@ -17,7 +17,7 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
         );
         $Parameters['force'] = $Parameters['force'] ?? $false;
         $Parameters['compression'] = $Parameters['compression'] ?? "Optimal";
-        $Output = @{
+        $OutputTask = @{
             'Paths' = $Parameters['paths'];
         };
         try {
@@ -29,13 +29,13 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
                 | Select-Object -ExpandProperty "FullName";
             Compress-Archive -Path $Parameters['paths'] -DestinationPath $Parameters['destination'] -CompressionLevel $Parameters['compression'] -Force:$Parameters['force'];
             Write-Line -Message "Files compressed" -Line " " -Corner " " -MessageForegroundColor Green;
-            $Output['Success'] = $true;
-            $Output['Destination'] = $(Resolve-Path -LiteralPath $Parameters['destination']).Path;
+            $OutputTask['Success'] = $true;
+            $OutputTask['Destination'] = $(Resolve-Path -LiteralPath $Parameters['destination']).Path;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Output['Success'] = $false;
+            $OutputTask['Success'] = $false;
         } finally {
-            Write-Output -InputObject $Output;
+            Write-Output -InputObject $OutputTask;
         }
     };
 }[$Version] | Write-Output;

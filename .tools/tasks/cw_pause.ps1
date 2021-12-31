@@ -17,6 +17,9 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
         );
         $Parameters['milliseconds'] = $Parameters['milliseconds'] ?? 0;
         $Total = $Elapsed = $Parameters['milliseconds'] / 1000;
+        $OutputTask = @{
+            'Success' = $true;
+        };
         Write-VerboseMessage -Message "Total seconds to wait: $Total";
         if($Total -eq 0) {
             if($NoInteractive) {
@@ -26,6 +29,9 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             } else {
                 $Note = Read-Host -Prompt "Press enter to continue or write a note";
                 Write-Note -Type wrapper_pause -Note $Note;
+                if($Note) {
+                    $OutputTask['Note'] = $Note;
+                }
             }
         } else {
             do {
@@ -37,8 +43,6 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
                 $Elapsed--;
             } while ($Elapsed -gt 0);
         }
-        Write-Output -InputObject @{
-            'Success' = $true;
-        };
+        Write-Output -InputObject $OutputTask;
     };
 }[$Version] | Write-Output;

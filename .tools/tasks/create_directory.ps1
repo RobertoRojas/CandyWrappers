@@ -15,7 +15,7 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             [hashtable]
             $Parameters = $(throw "Parameters need to be defined")
         );
-        $Output = @{};
+        $OutputTask = @{};
         try {
             if(Test-Path -LiteralPath $Parameters['path']) {
                 if($Parameters['force']) {
@@ -26,13 +26,13 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             }
             New-Item -Path $Parameters['path'] -ItemType directory | Out-Null;
             Write-Line -Message "Directory created" -Line " " -Corner " " -MessageForegroundColor Green;
-            $Output['Path'] = $(Resolve-Path -LiteralPath $Parameters['path']).Path;
-            $Output['Success'] = $true;
+            $OutputTask['Path'] = $(Resolve-Path -LiteralPath $Parameters['path']).Path;
+            $OutputTask['Success'] = $true;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Output['Success'] = $false;
+            $OutputTask['Success'] = $false;
         } finally {
-            Write-Output -InputObject $Output;
+            Write-Output -InputObject $OutputTask;
         }
     };
 }[$Version] | Write-Output;

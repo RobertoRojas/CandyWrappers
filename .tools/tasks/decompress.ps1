@@ -16,21 +16,21 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             $Parameters = $(throw "Parameters need to be defined")
         );
         $Parameters['force'] = $Parameters['force'] ?? $false;
-        $Output = @{};
+        $OutputTask = @{};
         try {
             if(-not (Test-Path -LiteralPath $Parameters['path'])) {
                 throw "The path[$($Parameters['path'])] doesn't exist";
             } 
-            $Output['Path'] = $(Resolve-Path -LiteralPath $Parameters['path']).Path;
+            $OutputTask['Path'] = $(Resolve-Path -LiteralPath $Parameters['path']).Path;
             Expand-Archive -LiteralPath $Parameters['path'] -DestinationPath $Parameters['destination'] -Force:$Parameters['force'];
             Write-Line -Message "Files decompressed" -Line " " -Corner " " -MessageForegroundColor Green;
-            $Output['Destination'] = $(Resolve-Path -LiteralPath $Parameters['destination']).Path;
-            $Output['Success'] = $true;
+            $OutputTask['Destination'] = $(Resolve-Path -LiteralPath $Parameters['destination']).Path;
+            $OutputTask['Success'] = $true;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Output['Success'] = $false;
+            $OutputTask['Success'] = $false;
         } finally {
-            Write-Output -InputObject $Output;
+            Write-Output -InputObject $OutputTask;
         }
     };
 }[$Version] | Write-Output;

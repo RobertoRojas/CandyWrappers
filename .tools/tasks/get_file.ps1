@@ -19,7 +19,7 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
         $Parameters['like'] = $Parameters['like'] ?? "*";
         $Parameters['encoding'] = $Parameters['encoding'] ?? "ascii";
         $Parameters['displaycontent'] = $Parameters['displaycontent'] ?? $true;
-        $Output = @{};
+        $OutputTask = @{};
         try {
             if(-not (Test-Path -LiteralPath $Parameters['path'])) {
                 throw "The path[$($Parameters['path'])] doesn't exists";
@@ -44,13 +44,13 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
                 }
             }
             Write-Line -Message "Content obtained" -Line " " -Corner " " -MessageForegroundColor Green;
-            $Output['Content'] = $Content;
-            $Output['Success'] = $true;
+            $OutputTask['Content'] = $Content;
+            $OutputTask['Success'] = $true;
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Output['Success'] = $false;
+            $OutputTask['Success'] = $false;
         } finally {
-            Write-Output -InputObject $Output;
+            Write-Output -InputObject $OutputTask;
         }
     };
 }[$Version] | Write-Output;

@@ -19,21 +19,21 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
         $Arguments = $Parameters['arguments'] ?? @();
         $Inputs = $Parameters['inputs'] ?? @();
         $WorkingDirectory = $Parameters['workingdirectory'] ?? $(Get-Location).Path;
-        $Output = @{};
+        $OutputTask = @{};
         try {
             $Result = Invoke-Program -Program $Program -Arguments $Arguments -Inputs $Inputs -WorkingDirectory $WorkingDirectory;
-            $Output['Output'] = $Result['Output'];
-            $Output['Error'] = $Result['Error'];
-            $Output['ExitCode'] = $Result['ExitCode'];
-            $Output['Success'] = $($Result['ExitCode'] -eq 0);
+            $OutputTask['Output'] = $Result['Output'];
+            $OutputTask['Error'] = $Result['Error'];
+            $OutputTask['ExitCode'] = $Result['ExitCode'];
+            $OutputTask['Success'] = $($Result['ExitCode'] -eq 0);
         } catch {
             Write-ErrorMessage -Message "$($MyInvocation.MyCommand.Name) -> $($Parameters['task']) -> $($_.Exception.Message)";
-            $Output['Output'] = "";
-            $Output['Error'] = "";
-            $Output['ExitCode'] = -1;
-            $Output['Success'] = $false;
+            $OutputTask['Output'] = "";
+            $OutputTask['Error'] = "";
+            $OutputTask['ExitCode'] = -1;
+            $OutputTask['Success'] = $false;
         } finally {
-            Write-Output -InputObject $Output;
+            Write-Output -InputObject $OutputTask;
         }
     };
 }[$Version] | Write-Output;
