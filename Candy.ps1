@@ -746,7 +746,7 @@ try {
         Write-Line -Message "Control[Paths]" -Line "." -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
         Write-Message;
         for ($i = 0; $i -lt $ControlObject['paths'].Count; $i++) {
-            $Path =$ControlObject['paths'][$i];
+            $Path = $ControlObject['paths'][$i];
             if(-not $(Test-Path -LiteralPath $Path['path'])) {
                 throw "$($Invocation.MyCommand.Name) : The path[$($Path['path'])] to watch doesn't exist";
             }

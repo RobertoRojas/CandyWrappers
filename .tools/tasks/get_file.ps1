@@ -37,10 +37,16 @@ Write-VerboseMessage "Selected version[$Version] of $($MyInvocation.MyCommand.Na
             }
             $Content = Get-Content @Arguments | Where-Object -FilterScript {$_ -like $Parameters['like']};
             if($Parameters['displaycontent']) {
-                for ($i = 0; $i -lt $Content.Count; $i++) {
-                    Write-Message -Message "$i " -NoNewLine -ForegroundColor DarkCyan;
+                if($Content -is [string]) {
+                    Write-Message -Message "0 " -NoNewLine -ForegroundColor DarkCyan;
                     Write-Message -Message "~ " -NoNewLine -ForegroundColor DarkMagenta;
-                    Write-Message -Message $Content[$i] -ForegroundColor White;
+                    Write-Message -Message $Content -ForegroundColor White;   
+                } else {
+                    for ($i = 0; $i -lt $Content.Count; $i++) {
+                        Write-Message -Message "$i " -NoNewLine -ForegroundColor DarkCyan;
+                        Write-Message -Message "~ " -NoNewLine -ForegroundColor DarkMagenta;
+                        Write-Message -Message $Content[$i] -ForegroundColor White;
+                    }                 
                 }
             }
             Write-Line -Message "Content obtained" -Line " " -Corner " " -MessageForegroundColor Green;
