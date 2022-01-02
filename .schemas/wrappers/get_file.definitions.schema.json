@@ -1,0 +1,82 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Set file schema",
+    "description": "Define the functions to set a file of CandyWrappers.",
+    "definitions": {
+        "1.0.0": {
+            "type": "object",
+            "required": [
+                "task",
+                "path"
+            ],
+            "oneOf": [
+                {
+                    "not": {
+                        "required": [
+                            "tail"
+                        ]
+                    },
+                    "required": [
+                        "totalcount"
+                    ],
+                    "totalcount": {
+                        "$ref": "1.0.0/definitions.schema.json#/definitions/positiveintenger"
+                    }
+                },
+                {
+                    "not": {
+                        "required": [
+                            "totalcount"
+                        ]
+                    },
+                    "required": [
+                        "tail"
+                    ],
+                    "tail": {
+                        "$ref": "1.0.0/definitions.schema.json#/definitions/positiveintenger"
+                    }
+                },{
+                    "not": {
+                        "required": [
+                            "tail",
+                            "totalcount"
+                        ]
+                    }
+                }
+            ],
+            "properties": {
+                "task": {
+                    "type": "string",
+                    "pattern": "^get_file$"
+                },
+                "path": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/path"
+                },
+                "raw": {
+                    "type": "boolean"
+                },
+                "like": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/nonemptystring"
+                },
+                "encoding": {
+                    "type": "string",
+                    "enum": [
+                        "ascii",
+                        "bigendianunicode",
+                        "bigendianutf32",
+                        "oem",
+                        "unicode",
+                        "utf7",
+                        "utf8",
+                        "utf8BOM",
+                        "utf8NoBOM",
+                        "utf3"
+                    ]
+                },
+                "displaycontent": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

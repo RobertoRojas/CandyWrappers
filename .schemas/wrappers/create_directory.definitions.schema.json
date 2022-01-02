@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Create directory schema",
+    "description": "Define the functions to create directories of CandyWrappers.",
+    "definitions": {
+        "1.0.0": {
+            "type": "object",
+            "required": [
+                "task",
+                "path"
+            ],
+            "properties": {
+                "task": {
+                    "type": "string",
+                    "pattern": "^create_directory$"
+                },
+                "path": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/path"
+                },
+                "force": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

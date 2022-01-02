@@ -1,0 +1,99 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Mode schema",
+    "description": "Definitions of the control mode of the execution in CandyWrappers.",
+    "type": "object",
+    "required": [
+        "mode"
+    ],
+    "properties": {
+        "commandspath": {
+            "$ref": "#/definitions/path"
+        },
+        "manual": {
+            "type": "boolean"
+        },
+        "delay": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "force": {
+            "type": "boolean"
+        }
+    },
+    "oneOf": [
+        {
+            "properties": {
+                "mode": {
+                    "type": "string",
+                    "pattern": "^once$"
+                }
+            }
+        },{
+            "properties": {
+                "mode": {
+                    "type": "string",
+                    "pattern": "^infinite$"
+                }
+            }
+        },{
+            "properties": {
+                "mode": {
+                    "type": "string",
+                    "pattern": "^loop$"
+                },
+                "repeat": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },{
+            "properties": {
+                "mode": {
+                    "type": "string",
+                    "pattern": "^file_system_watcher$"
+                },
+                "created": {
+                    "type": "boolean"
+                },
+                "changed": {
+                    "type": "boolean"
+                },
+                "deleted": {
+                    "type": "boolean"
+                },
+                "renamed": {
+                    "type": "boolean"
+                },
+                "subdirectories": {
+                    "type": "boolean"
+                },
+                "paths": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "path"
+                        ],
+                        "properties": {
+                            "path": {
+                                "$ref": "#/definitions/path"
+                            },
+                            "filter": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "definitions": {
+        "path": {
+            "type": "string",
+            "pattern": "^([a-zA-Z][:](\\|\/))?(([^<>:\"|*?])*)+$"
+        }
+    }
+}

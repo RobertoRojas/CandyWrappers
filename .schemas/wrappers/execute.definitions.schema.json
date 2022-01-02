@@ -1,0 +1,23 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Execute schema",
+    "description": "Define the functions to execute commands of CandyWrappers.",
+    "definitions": {
+        "1.0.0": {
+            "type": "object",
+            "required": [
+                "task",
+                "commands"
+            ],
+            "properties": {
+                "task": {
+                    "type": "string",
+                    "pattern": "^execute$"
+                },
+                "commands": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/nonemptyarray"
+                }
+            }
+        }
+    }
+}

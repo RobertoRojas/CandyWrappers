@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Wrapper schema",
+    "description": "Definitions of the wrappers to use in CandyWrappers.",
+    "type": "object",
+    "required": [
+        "wrappers"
+    ],
+    "properties": {
+        "wrappers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "anyOf": [
+                    {
+                        "$ref": "../buffer_create.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../buffer_show.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../compress.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../create_directory.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../cw_break.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../cw_echo.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../cw_pause.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../cw_task.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../decompress.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../download.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../execute.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../get_file.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../invoke_program.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../remove_path.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../set_file.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../test_path.definitions.schema.json#/definitions/1.0.0"
+                    },
+                    {
+                        "$ref": "../test_program.definitions.schema.json#/definitions/1.0.0"
+                    }
+                ]
+            }
+        }
+    }
+}

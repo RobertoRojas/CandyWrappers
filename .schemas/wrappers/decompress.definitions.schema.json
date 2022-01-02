@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Shell schema",
+    "description": "Define the functions to decompress zip files of CandyWrappers.",
+    "definitions": {
+        "1.0.0": {
+            "type": "object",
+            "required": [
+                "task",
+                "path",
+                "destination"
+            ],
+            "properties": {
+                "task": {
+                    "type": "string",
+                    "pattern": "^decompress$"
+                },
+                "path": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/path"
+                },
+                "destination": {
+                    "$ref": "1.0.0/definitions.schema.json#/definitions/path"
+                },
+                "force": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}
