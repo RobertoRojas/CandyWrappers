@@ -216,7 +216,7 @@ function Write-Line {
     if($Width -le $Message.Length) {
         $Object = $Message;
         $Parameters = @{
-            'Message' = $Object;
+            'message' = $Object;
             'Stream' = $Stream;
         }
         if(-not $NoColor) {
@@ -230,17 +230,17 @@ function Write-Line {
         Write-Message @Parameters;
     } else {
         $CornerParameter = @{
-            'Message' = $Corner;
+            'message' = $Corner;
             'Stream' = $Stream;
             'NoNewline' = $true;
         };
         $LineParameter = @{
-            'Message' = $Line;
+            'message' = $Line;
             'Stream' = $Stream;
             'NoNewline' = $true;
         };
         $MessageParameter = @{
-            'Message' = $Message;
+            'message' = $Message;
             'Stream' = $Stream;
             'NoNewline' = $true;
         };
@@ -543,8 +543,8 @@ function Write-Note {
 }
 $Configuration = @{
     'Wrapper' = @{
-        'Execution' = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
-        'Program' = Join-Path -Path $PSScriptRoot -ChildPath ".candy" -AdditionalChildPath @("wrappers","wrapper.json");
+        'Execution' = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("wrappers");
+        'Program' = Join-Path -Path $PSScriptRoot -ChildPath ".candy" -AdditionalChildPath @("wrappers");
         'Schema' = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("wrappers",$SelectedVersion,"wrapper.schema.json");
         'SchemaGeneral' = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("wrappers",$SelectedVersion,"wrapper.general.schema.json");
     };
@@ -561,7 +561,7 @@ $Configuration = @{
         'Execution' = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("control",$Control);
         'Program' = Join-Path -Path $PSScriptRoot -ChildPath ".candy" -AdditionalChildPath @("control",$Control);
         'Schema' = Join-Path -Path $PSScriptRoot -ChildPath ".schemas" -AdditionalChildPath @("control","control.schema.json");
-        'CommandsPath' = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("control","commands");
+        'commandspath' = Join-Path -Path $(Get-Location).Path -ChildPath ".candy" -AdditionalChildPath @("control","commands");
         'Default' = '{"mode":"once"}';
     };
     'Macro' = @{
@@ -619,7 +619,7 @@ try {
             $Var = Get-Variable -Name $Item.Key;
             $Var.Value = $Item.Value;
             $Parameters[$Item.Key] = @{
-                'value' = $Var.Value;
+                'value' = $Var.Value.ToString();
                 'type' = "macro";
             };
         }
@@ -673,18 +673,18 @@ try {
     $ControlObject = ConvertFrom-Json -InputObject $Control -AsHashtable;
     $ControlObject['manual'] = $ControlObject['manual'] ?? $false;
     $ControlObject['delay'] = $ControlObject['delay'] ?? 0;
-    $ControlObject['CommandsPath'] = $ControlObject['commandspath'] ?? $Configuration['Control']['CommandsPath']; 
-    $ControlObject['Commands'] = @{
-        'Break' = Join-Path -Path $ControlObject['CommandsPath'] -ChildPath "break";
-        'Pause' = Join-Path -Path $ControlObject['CommandsPath'] -ChildPath "pause";
-        'Note' = Join-Path -Path $ControlObject['CommandsPath'] -ChildPath "note";
-        'Event' = Join-Path -Path $ControlObject['CommandsPath'] -ChildPath "event";
+    $ControlObject['commandspath'] = $ControlObject['commandspath'] ?? $Configuration['Control']['commandspath']; 
+    $ControlObject['commands'] = @{
+        'break' = Join-Path -Path $ControlObject['commandspath'] -ChildPath "break";
+        'pause' = Join-Path -Path $ControlObject['commandspath'] -ChildPath "pause";
+        'note' = Join-Path -Path $ControlObject['commandspath'] -ChildPath "note";
+        'event' = Join-Path -Path $ControlObject['commandspath'] -ChildPath "event";
     };
     $ControlObject['force'] = $ControlObject['force'] ?? $false; 
     Write-Message -Message "Mode      : " -NoNewLine -ForegroundColor DarkCyan;
     Write-Message -Message $ControlObject['mode'] -ForegroundColor Cyan;
     Write-Message -Message "Commands  : " -NoNewLine -ForegroundColor DarkCyan;
-    Write-Message -Message $ControlObject['CommandsPath'] -ForegroundColor Cyan;
+    Write-Message -Message $ControlObject['commandspath'] -ForegroundColor Cyan;
     Write-Message -Message "Delay     : " -NoNewLine -ForegroundColor DarkCyan;
     Write-Message -Message $ControlObject['delay'] -ForegroundColor Cyan;
     Write-Message -Message "Manual    : " -NoNewLine -ForegroundColor DarkCyan;
@@ -739,8 +739,8 @@ try {
             }
         };
         $ActionObject = [PSCustomObject]@{
-            'CommandsPath' = $ControlObject['CommandsPath'];
-            'EventPath' = $ControlObject['Commands']['Event'];
+            'commandspath' = $ControlObject['commandspath'];
+            'EventPath' = $ControlObject['commands']['event'];
             
         };
         Write-Message;
@@ -796,18 +796,18 @@ try {
             $Waiting = $true;
             $EventTrigger = $true;
             while($Waiting) {
-                if(Test-Path -LiteralPath $ControlObject['Commands']['Break']) {
+                if(Test-Path -LiteralPath $ControlObject['commands']['break']) {
                     $EventTrigger = $false;
-                    Remove-Item -LiteralPath $ControlObject['Commands']['Break'] -Force | Out-Null;
+                    Remove-Item -LiteralPath $ControlObject['commands']['break'] -Force | Out-Null;
                     break;
                 }
-                if(Test-Path -LiteralPath $ControlObject['Commands']['Event']) {
+                if(Test-Path -LiteralPath $ControlObject['commands']['event']) {
                     $Waiting = $false;
                 }
                 Start-Sleep -Milliseconds 100;
             }
-            if(Test-Path -LiteralPath $ControlObject['Commands']['Event']) {
-                Remove-Item -LiteralPath $ControlObject['Commands']['Event'] -Force | Out-Null;
+            if(Test-Path -LiteralPath $ControlObject['commands']['event']) {
+                Remove-Item -LiteralPath $ControlObject['commands']['event'] -Force | Out-Null;
             }
             Write-Output -InputObject $EventTrigger;
         };        
@@ -844,10 +844,10 @@ try {
         if($CandySystem -eq "Execute") {
             try {
                 if($null -eq $Wrappers) {
-                    if(Test-Path -LiteralPath $Configuration['Wrapper']['Execution']) {
-                        $Wrappers = @($Configuration['Wrapper']['Execution']);
-                    } elseif (Test-Path -LiteralPath $Configuration['Wrapper']['Program']) {
-                        $Wrappers = @($Configuration['Wrapper']['Program']);
+                    if(Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath "wrapper.json")) {
+                        $Wrappers = @(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath "wrapper.json");
+                    } elseif (Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Program'] -ChildPath "wrapper.json")) {
+                        $Wrappers = @(Join-Path -Path $Configuration['Wrapper']['Program'] -ChildPath "wrapper.json");
                     } else {
                         throw "$($Invocation.MyCommand.Name) : Cannot find any wrapper to execute";
                     }
@@ -864,9 +864,9 @@ try {
                     $ModuleName = $(Import-Module -Force -Name $Module -PassThru).Name;
                     Write-Line -Message "$ModuleName($ModuleVersion)" -MessageForegroundColor Magenta -Corner " " -Line " ";
                     [void]$ModulesList.Add(@{
-                        'Name' = $ModuleName;
-                        'Path' = $Module;
-                        'Version' = $ModuleVersion;
+                        'name' = $ModuleName;
+                        'path' = $Module;
+                        'version' = $ModuleVersion;
                     });
                 }
                 if($Log) {
@@ -881,34 +881,39 @@ try {
                 if(-not (Test-Path -LiteralPath $Configuration['Wrapper']['Schema'])) {
                     throw "$($Invocation.MyCommand.Name) : Cannot find the schema path[$($Configuration['Wrapper']['Schema'])]";
                 }
-                if($Log) {
-                    $Output['wrappers'] = $Wrappers;
-                }
+                $Output['wrappers'] = @();
                 $Tasks = [System.Collections.ArrayList]::new();
                 for ($i = 0; $i -lt $Wrappers.Count; $i++) {
                     $Wrapper = $Wrappers[$i];
                     if($Wrapper -is [hashtable]) {
-                        if($null -eq $Wrapper['Path']) {
+                        if($null -eq $Wrapper['path']) {
                             throw "$($Invocation.MyCommand.Name) : The wrapper[$i] hash property path is mandatory";
                         }
                         $Task = @{
-                            'Path' = $Wrapper['Path'];
-                            'Include' = $Wrapper['Include'] + $Include;
-                            'Exclude' = $Wrapper['Exclude'] + $Exclude;
+                            'path' = $Wrapper['path'];
+                            'include' = $Wrapper['include'] + $Include;
+                            'exclude' = $Wrapper['exclude'] + $Exclude;
                         };
                     } elseif ($Wrapper -is [string]) {
                         $Task = @{
-                            'Path' = $Wrapper;
-                            'Include' = $Include;
-                            'Exclude' = $Exclude;
+                            'path' = $Wrapper;
+                            'include' = $Include;
+                            'exclude' = $Exclude;
                         };
                     } else {
                         throw "$($Invocation.MyCommand.Name) : The wrapper element[$i] is not a valid type[$($Wrapper.GetType().Name)]";
                     }
-                    if(-not (Test-Path -LiteralPath $Task['Path'])) {
-                        throw "$($Invocation.MyCommand.Name) : The wrapper path[$($Task['Path'])] doesn't exist";
+                    if(Test-Path -LiteralPath $Task['path']) {
+                        $Task['path'] = $(Resolve-Path -LiteralPath $Task['path']).Path;
+                    } elseif(Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath $Task['path'])) {
+                        $Task['path'] = $(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath $Task['path']);
+                    } elseif(Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Program'] -ChildPath $Task['path'])) {
+                        $Task['path'] = $(Join-Path -Path $Configuration['Wrapper']['Program'] -ChildPath $Task['path']);
+                    } else {
+                        throw "$($Invocation.MyCommand.Name) : The wrapper path[$($Task['path'])] doesn't exist";
                     }
-                    $WrapperJSON = Get-Content -LiteralPath $Task['Path'] -Raw;
+                    $Output['wrappers'] += $Task['path'];
+                    $WrapperJSON = Get-Content -LiteralPath $Task['path'] -Raw;
                     try {
                         Test-Json -Json $WrapperJSON -SchemaFile $Configuration['Wrapper']['SchemaGeneral'] | Out-Null;
                     } catch {
@@ -1024,7 +1029,7 @@ try {
                     }
                     $Response = Invoke-Command -NoNewScope:$NoNewScope -ScriptBlock $TaskExecution -ArgumentList $Task;
                     $Output['exitcode'] = 0;
-                    $TasksExecution[$Task['id']] = $Response['Success'];
+                    $TasksExecution[$Task['id']] = $Response['success'];
                     if($Task['buffer']) {
                         $Buffers['cw/last'] = $Response;
                         $Buffers[$Task['id']] = $Response;
@@ -1033,11 +1038,11 @@ try {
                     }
                     if($Log) {
                         $Output['execution'] += @{
-                            'Task' = $Task;
-                            'Response' = $Response;
+                            'task' = $Task;
+                            'response' = $Response;
                         };
                     }
-                    if($Response['Success'] -eq $true) {
+                    if($Response['success'] -eq $true) {
                         $Output['exitcode'] = 0;
                     } else {
                         $ErrorAction = $Task['onerror'] ?? $OnError;
@@ -1045,10 +1050,10 @@ try {
                             Write-ErrorMessage -Message "`nError in the wrapper[$($Task['task'])] was ignored" -NoDisplay:$($ErrorAction -eq "silent_ignore");
                         } else {
                             $Output['exitcode'] = 1;
-                            $Response['Break'] = $true;
+                            $Response['break'] = $true;
                         }
                     }
-                    if($Response['Break'] -eq $true) {
+                    if($Response['break'] -eq $true) {
                         break;
                     }
                 }
@@ -1115,10 +1120,10 @@ try {
             $Output['wrappers'] = @();
             try {
                 if($null -eq $Wrappers) {
-                    if(Test-Path -LiteralPath $Configuration['Wrapper']['Execution']) {
-                        $Wrappers = @($Configuration['Wrapper']['Execution']);
-                    } elseif (Test-Path -LiteralPath $Configuration['Wrapper']['Program']) {
-                        $Wrappers = @($Configuration['Wrapper']['Program']);
+                    if(Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath "wrapper.json")) {
+                        $Wrappers = @(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath "wrapper.json");
+                    } elseif (Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Program'] -ChildPath "wrapper.json")) {
+                        $Wrappers = @(Join-Path -Path $Configuration['Wrapper']['Program'] -ChildPath "wrapper.json");
                     } else {
                         throw "$($Invocation.MyCommand.Name) : Cannot find any wrapper to execute";
                     }
@@ -1126,42 +1131,48 @@ try {
                 for ($i = 0; $i -lt $Wrappers.Count; $i++) {
                     $Wrapper = $Wrappers[$i];
                     if($Wrapper -is [hashtable]) {
-                        if($null -eq $Wrapper['Path']) {
+                        if($null -eq $Wrapper['path']) {
                             Write-Message;
                             $Output['exitcode'] = 1;
                             $Output['wrappers'] += @{
-                                'Path' = "uknown";
-                                'Message' = "The wrapper[$i] hash property path is mandatory";
-                                'Success' = $false;
+                                'path' = "uknown";
+                                'message' = "The wrapper[$i] hash property path is mandatory";
+                                'success' = $false;
                             };
                             continue;
                         }
                         $Task = @{
-                            'Path' = $Wrapper['Path'];
+                            'path' = $Wrapper['path'];
                         };
                     } elseif ($Wrapper -is [string]) {
                         $Task = @{
-                            'Path' = $Wrapper;
+                            'path' = $Wrapper;
                         };
                     } else {
                         $Output['exitcode'] = 1;
                         $Output['wrappers'] += @{
-                            'Path' = "uknown";
-                            'Message' = "The wrapper element[$i] is not a valid type[$($Wrapper.GetType().Name)]";
-                            'Success' = $false;
+                            'path' = "uknown";
+                            'message' = "The wrapper element[$i] is not a valid type[$($Wrapper.GetType().Name)]";
+                            'success' = $false;
                         };
                         continue;
                     }
-                    if(-not (Test-Path -LiteralPath $Task['Path'])) {
+                    if(Test-Path -LiteralPath $Task['path']) {
+                        $Task['path'] = $(Resolve-Path -LiteralPath $Task['path']).Path;
+                    } elseif(Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath $Task['path'])) {
+                        $Task['path'] = $(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath $Task['path']);
+                    } elseif(Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Program'] -ChildPath $Task['path'])) {
+                        $Task['path'] = $(Join-Path -Path $Configuration['Wrapper']['Program'] -ChildPath $Task['path']);
+                    } else {
                         $Output['exitcode'] = 1;
                         $Output['wrappers'] += @{
-                            'Path' = $Task['Path'];
-                            'Message' = "The wrapper path[$($Task['Path'])] doesn't exist";
-                            'Success' = $false;
+                            'path' = $Task['path'];
+                            'message' = "The wrapper path[$($Task['path'])] doesn't exist";
+                            'success' = $false;
                         };
                         continue;
                     }
-                    $WrapperJSON = Get-Content -LiteralPath $Task['Path'] -Raw;
+                    $WrapperJSON = Get-Content -LiteralPath $Task['path'] -Raw;
                     try {
                         Test-Json -Json $WrapperJSON -SchemaFile $Configuration['Wrapper']['SchemaGeneral'] | Out-Null;
                     } catch {
@@ -1172,9 +1183,9 @@ try {
                         }
                         $Output['exitcode'] = 1;
                         $Output['wrappers'] += @{
-                            'Path' = $Task['Path'];
-                            'Message' = $Message;
-                            'Success' = $false;
+                            'path' = $Task['path'];
+                            'message' = $Message;
+                            'success' = $false;
                         };
                         continue;
                     }
@@ -1188,16 +1199,16 @@ try {
                         }
                         $Output['exitcode'] = 1;
                         $Output['wrappers'] += @{
-                            'Path' = $Task['Path'];
-                            'Message' = $Message;
-                            'Success' = $false;
+                            'path' = $Task['path'];
+                            'message' = $Message;
+                            'success' = $false;
                         };
                         continue;
                     }
                     $Output['wrappers'] += @{
-                        'Path' = $Task['Path'];
-                        'Message' = "Valid JSON";
-                        'Success' = $true;
+                        'path' = $Task['path'];
+                        'message' = "Valid JSON";
+                        'success' = $true;
                     };
                 }
                 Write-Message;
@@ -1205,7 +1216,7 @@ try {
                 Write-Message;
                 for ($i = 0; $i -lt $Output['wrappers'].Count; $i++) {
                     $Test = $Output['wrappers'][$i];
-                    Write-Line -Message "[$i] - $($Test['Path'])" -Line " " -Corner " " -MessageForegroundColor Magenta;
+                    Write-Line -Message "[$i] - $($Test['path'])" -Line " " -Corner " " -MessageForegroundColor Magenta;
                 }
                 Write-Message;
                 Write-Line -Message "Validate" -LineForegroundColor DarkCyan -MessageForegroundColor Cyan;
@@ -1215,12 +1226,12 @@ try {
                     Write-Message;
                     Write-Line -Message "wrapper[$i]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
                     Write-Message;
-                    if($Test['Success']) {
+                    if($Test['success']) {
                         Write-Line -Message "Valid" -Line " " -Corner " " -LineBackgroundColor Green -MessageForegroundColor White -MessageBackgroundColor Green;
                     } else {
                         Write-Line -Message "No valid" -Line " " -Corner " " -LineBackgroundColor Red -MessageForegroundColor White -MessageBackgroundColor Red;
                     }
-                    Write-VerboseMessage -Message $Test['Message'];
+                    Write-VerboseMessage -Message $Test['message'];
                 }
             } catch {
                 $Output['exitcode'] = 1;
@@ -1260,20 +1271,20 @@ try {
         Write-Message;
         Write-Line -Message "Wait for $($ControlObject['delay']) milliseconds" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Magenta -LineBackgroundColor Magenta;
         while($Elapsed -lt $ControlObject['delay']) {
-            if(Test-Path -LiteralPath $ControlObject['Commands']['Break']) {
-                Remove-Item -LiteralPath $ControlObject['Commands']['Break'] -Force | Out-Null;
+            if(Test-Path -LiteralPath $ControlObject['commands']['break']) {
+                Remove-Item -LiteralPath $ControlObject['commands']['break'] -Force | Out-Null;
                 break working_loop;
             }
-            if(Test-Path -LiteralPath $ControlObject['Commands']['Note']) {
+            if(Test-Path -LiteralPath $ControlObject['commands']['note']) {
                 if(-not $NoInteractive) {
                     $Note = Read-Host -Prompt "Press enter to continue or write a note";
                     Write-Note -Type control_pause -Note $Note;
-                    Remove-Item -LiteralPath $ControlObject['Commands']['Note'] -Force | Out-Null;
+                    Remove-Item -LiteralPath $ControlObject['commands']['note'] -Force | Out-Null;
                 } else {
                     Write-Line -Message "Cannot execute a note in a non interactive context" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Yellow -LineBackgroundColor Yellow;
                 }
             }
-            if(-not (Test-Path -LiteralPath $ControlObject['Commands']['Pause'])) {
+            if(-not (Test-Path -LiteralPath $ControlObject['commands']['pause'])) {
                 $Paused = $false;
                 $Elapsed++;
                 if($Elapsed % 1000 -eq 0) {
@@ -1283,10 +1294,10 @@ try {
                 if(-not $NoInteractive) {
                     if(-not $Paused) {
                         $Paused = $true;
-                        Write-Line -Message "Execution paused, delete [$($ControlObject['Commands']['Pause'])] to continue" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Magenta -LineBackgroundColor Magenta;
+                        Write-Line -Message "Execution paused, delete [$($ControlObject['commands']['pause'])] to continue" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Magenta -LineBackgroundColor Magenta;
                     } 
                 } else {
-                    Remove-Item -LiteralPath $ControlObject['Commands']['Pause'] -Force | Out-Null;
+                    Remove-Item -LiteralPath $ControlObject['commands']['pause'] -Force | Out-Null;
                     Write-Line -Message "Cannot execute a pause in a non interactive context" -Line " " -Corner " " -MessageForegroundColor White -MessageBackgroundColor Yellow -LineBackgroundColor Yellow;
                 }
             }
