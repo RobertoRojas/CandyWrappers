@@ -7,7 +7,6 @@ param(
         "JSON",
         "JSONs"
     )]
-    [ValidateNotNullOrEmpty()]
     [System.Object[]]
     $Wrappers = $null,
     [ValidateNotNull()]
@@ -843,7 +842,7 @@ try {
     :working_loop do {
         if($CandySystem -eq "Execute") {
             try {
-                if($null -eq $Wrappers) {
+                if($null -eq $Wrappers -or $Wrappers.Count -eq 0) {
                     if(Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath "wrapper.json")) {
                         $Wrappers = @(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath "wrapper.json");
                     } elseif (Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Program'] -ChildPath "wrapper.json")) {
@@ -1119,7 +1118,7 @@ try {
             $Output['exitcode'] = 0;
             $Output['wrappers'] = @();
             try {
-                if($null -eq $Wrappers) {
+                if($null -eq $Wrappers -or $Wrappers.Count -eq 0) {
                     if(Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath "wrapper.json")) {
                         $Wrappers = @(Join-Path -Path $Configuration['Wrapper']['Execution'] -ChildPath "wrapper.json");
                     } elseif (Test-Path -LiteralPath $(Join-Path -Path $Configuration['Wrapper']['Program'] -ChildPath "wrapper.json")) {
@@ -1223,7 +1222,6 @@ try {
                 Write-Message;
                 for ($i = 0; $i -lt $Output['wrappers'].Count; $i++) {
                     $Test = $Output['wrappers'][$i];
-                    Write-Message;
                     Write-Line -Message "wrapper[$i]" -Line "." -Corner "*" -LineForegroundColor DarkYellow -MessageForegroundColor Yellow;
                     Write-Message;
                     if($Test['success']) {
