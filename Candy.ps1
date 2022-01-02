@@ -619,7 +619,7 @@ try {
             $Var = Get-Variable -Name $Item.Key;
             $Var.Value = $Item.Value;
             $Parameters[$Item.Key] = @{
-                'value' = $Var.Value.ToString();
+                'value' = $Var.Value;
                 'type' = "macro";
             };
         }
